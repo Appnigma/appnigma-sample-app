@@ -1,0 +1,46 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
+import express from "express";
+import { appRouter, underTheHoodRouter } from "./api/routes/app.routes.js";
+import { callsRouter, customersRouter } from "./api/routes/data.routes.js";
+import { integrationsRouter } from "./api/routes/integrations.routes.js";
+import { withRequestContext } from "./api/middleware/request-context.js";
+import { env } from "./config/env.js";
+
+const app = express();
+
+app.disable("x-powered-by");
+app.set("trust proxy", 1);
+app.use(express.json({ limit: "100kb" }));
+
+app.get("/healthz", (_request, response) => {
+  response.json({ status: "ok" });
+});
+
+app.use("/api", withRequestContext);
+app.use("/api/app", appRouter);
+app.use("/api/integrations", integrationsRouter);
+app.use("/api/customers", customersRouter);
+app.use("/api/calls", callsRouter);
+app.use("/api/under-the-hood", underTheHoodRouter);
+app.use("/api", (_request, response) => {
+  response.status(404).json({ error: { message: "There is no such API route" } });
+});
+
+// In production the server also serves the built web app; every other GET
+// answers its index so the app's own router can take over.
+const indexFile = path.join(env.webDistDirectory, "index.html");
+if (existsSync(indexFile)) {
+  app.use(express.static(env.webDistDirectory, { index: false, maxAge: "1h" }));
+  app.use(withRequestContext, (request, response, next) => {
+    if (request.method !== "GET") return next();
+    response.sendFile(indexFile);
+  });
+}
+
+app.listen(env.port, () => {
+  console.log(`Sample app on ${env.publicUrl} (port ${env.port})`);
+  if (!env.publicUrl.startsWith("https://") && !env.returnPageUrl) {
+    console.warn("PUBLIC_URL is not https and RETURN_PAGE_URL is not set, so connecting a platform will be refused. Set RETURN_PAGE_URL, or use an https address such as a tunnel.");
+  }
+});
