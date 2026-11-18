@@ -1,4 +1,4 @@
-import type { AppInfo } from "@server-types/app.types";
+import type { AppInfo } from "@server-types";
 
 type AppContextValue = {
   app: AppInfo;

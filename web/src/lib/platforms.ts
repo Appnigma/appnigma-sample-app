@@ -1,4 +1,4 @@
-import type { Integration } from "@server-types/integration.types";
+import type { Integration } from "@server-types";
 import { PLATFORM_INFO } from "../constants/platforms";
 import type { PlatformInfo } from "../types/ui.types";
 

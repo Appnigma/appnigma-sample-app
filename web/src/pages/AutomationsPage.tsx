@@ -1,5 +1,5 @@
-import type { NewAutomation } from "@server-types/automation.types";
-import type { Integration } from "@server-types/integration.types";
+import type { NewAutomation } from "@server-types";
+import type { Integration } from "@server-types";
 import { ExternalLink, Plus, Workflow } from "lucide-react";
 import { useCallback, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";

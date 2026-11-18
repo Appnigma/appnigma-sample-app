@@ -1,4 +1,4 @@
-import type { Integration } from "@server-types/integration.types";
+import type { Integration } from "@server-types";
 import { ArrowUpRight, Blocks } from "lucide-react";
 import { Link } from "react-router";
 import { api } from "../api/client";

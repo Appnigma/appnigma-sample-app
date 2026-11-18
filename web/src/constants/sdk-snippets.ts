@@ -1,16 +1,16 @@
 import type { SdkSnippet } from "../types/ui.types";
 
-const INTEGRATIONS = "server/src/services/integrations.service.ts";
-const CUSTOMERS = "server/src/services/customers.service.ts";
-const AUTOMATIONS = "server/src/services/automations.service.ts";
-const NOTIFICATIONS = "server/src/services/notifications.service.ts";
-const WORKSPACES = "server/src/services/workspaces.service.ts";
-const DEVELOPER = "server/src/services/developer.service.ts";
+const INTEGRATIONS = "server/src/features/integrations.ts";
+const CUSTOMERS = "server/src/features/customers.ts";
+const AUTOMATIONS = "server/src/features/automations.ts";
+const NOTIFICATIONS = "server/src/features/webhooks.ts";
+const ADMIN = "server/src/features/admin.ts";
+const RECORD_SYNC = "server/src/jobs/record-sync.ts";
 
 // What each SDK call looks like in this repository's server code, for the "Under the hood" panel.
 const SDK_SNIPPETS: Record<string, SdkSnippet> = {
   "features.list": {
-    file: "server/src/services/app.service.ts",
+    file: "server/src/features/app.ts",
     code: 'const { features } = await appnigma.features.list();\nconst syncOn = features.some((feature) => feature.name === "sync" && feature.enabled);',
   },
   "platforms.list": { file: INTEGRATIONS, code: "const { platforms } = await appnigma.platforms.list();\n// each has label, logoUrl, coverage, connectionType and fields" },
@@ -28,21 +28,21 @@ const SDK_SNIPPETS: Record<string, SdkSnippet> = {
     code: "const connection = await appnigma.connections.connect({ endCustomerId, platform, fields });\n// fields are encrypted before they leave your server",
   },
   "connections.disconnect": { file: INTEGRATIONS, code: "await appnigma.connections.disconnect({ endCustomerId, platform });" },
-  "connections.list": { file: WORKSPACES, code: "const page = await appnigma.connections.list({ limit: 50, cursor });\n// page.endCustomers, page.next" },
-  "endCustomers.delete": { file: WORKSPACES, code: "const removal = await appnigma.endCustomers.delete({ endCustomerId });" },
+  "connections.list": { file: ADMIN, code: "const page = await appnigma.connections.list({ limit: 50, cursor });\n// page.endCustomers, page.next" },
+  "endCustomers.delete": { file: ADMIN, code: "const removal = await appnigma.endCustomers.delete({ endCustomerId });" },
   "actions.list": { file: INTEGRATIONS, code: "const { actions } = await appnigma.actions.list({ platform });" },
   "actions.run": {
-    file: "server/src/services/calls.service.ts",
+    file: "server/src/features/calls.ts",
     code: 'const { output } = await appnigma.actions.run({\n  endCustomerId,\n  platform: "gong",\n  action: "get-call-transcript",\n  input: { callId },\n});',
   },
   request: {
-    file: "server/src/services/platform-account.service.ts",
+    file: INTEGRATIONS,
     code: 'const answer = await appnigma.request({ endCustomerId, platform, method: "GET", path });\nif (answer.status === 200) read(answer.body);',
   },
-  "sync.get": { file: "server/src/services/changes.service.ts", code: "const sync = await appnigma.sync.get();\n// sync.on, sync.platforms" },
+  "sync.get": { file: RECORD_SYNC, code: "const sync = await appnigma.sync.get();\n// sync.on, sync.platforms" },
   "sync.set": { file: NOTIFICATIONS, code: "const sync = await appnigma.sync.set({ on: true });" },
   "records.changes": {
-    file: "server/src/services/changes.service.ts",
+    file: RECORD_SYNC,
     code: 'const page = await appnigma.records.changes({ endCustomerId, platform, object: "deal", since });\nfor (const change of page.changes) apply(change.record);',
   },
   "logic.list": { file: AUTOMATIONS, code: "const { logic, folderProblems } = await appnigma.logic.list({ endCustomerId });" },
@@ -65,9 +65,9 @@ const SDK_SNIPPETS: Record<string, SdkSnippet> = {
   "alerts.get": { file: NOTIFICATIONS, code: "const { events } = await appnigma.alerts.get();" },
   "alerts.set": { file: NOTIFICATIONS, code: "await appnigma.alerts.set({ events });" },
   "events.list": { file: NOTIFICATIONS, code: "const page = await appnigma.events.list({ type, cursor, limit: 20 });" },
-  catalog: { file: DEVELOPER, code: "const { functions } = await appnigma.catalog();" },
-  run: { file: DEVELOPER, code: "const { output, ranAs } = await appnigma.run({ endCustomerId, platform, functionName, input });" },
-  guide: { file: DEVELOPER, code: "const { guide } = await appnigma.guide();" },
+  catalog: { file: ADMIN, code: "const { functions } = await appnigma.catalog();" },
+  run: { file: ADMIN, code: "const { output, ranAs } = await appnigma.run({ endCustomerId, platform, functionName, input });" },
+  guide: { file: ADMIN, code: "const { guide } = await appnigma.guide();" },
 };
 
 const CRM_OBJECTS = ["contacts", "companies", "deals"] as const;

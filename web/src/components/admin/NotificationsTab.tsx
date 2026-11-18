@@ -1,5 +1,5 @@
 import type { ClientEventType } from "@appnigma/sdk";
-import type { NotificationSettings } from "@server-types/notification.types";
+import type { NotificationSettings } from "@server-types";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { api, messageOf } from "../../api/client";
 import { EVENT_LABELS, eventSummaryOf } from "../../lib/events";

@@ -1,5 +1,5 @@
 import type { ClientEventType, JsonObject, SyncSettings } from "@appnigma/sdk";
-import type { AppInfo } from "@server-types/app.types";
+import type { AppInfo } from "@server-types";
 import type {
   AutomationChange,
   AutomationCheck,
@@ -10,15 +10,15 @@ import type {
   AutomationSwitch,
   AutomationTrial,
   NewAutomation,
-} from "@server-types/automation.types";
-import type { RecordedCall, TranscriptPart } from "@server-types/call.types";
-import type { RecentChanges } from "@server-types/change.types";
-import type { CustomerOverview, CustomerRecord, RecordEdit, RecordKind } from "@server-types/customer.types";
-import type { FunctionList, FunctionResult, FunctionRun } from "@server-types/developer.types";
-import type { AccountDetail, Integration, IntegrationAction, IntegrationDetail, IntegrationStatus } from "@server-types/integration.types";
-import type { CreatedWebhook, EventLogPage, NotificationSettings } from "@server-types/notification.types";
-import type { SdkCallRecord } from "@server-types/sdk-call.types";
-import type { WorkspacePage, WorkspaceRemoval } from "@server-types/workspace.types";
+} from "@server-types";
+import type { RecordedCall, TranscriptPart } from "@server-types";
+import type { RecentChanges } from "@server-types";
+import type { CustomerOverview, CustomerRecord, RecordEdit, RecordKind } from "@server-types";
+import type { FunctionList, FunctionResult, FunctionRun } from "@server-types";
+import type { AccountDetail, Integration, IntegrationAction, IntegrationDetail, IntegrationStatus } from "@server-types";
+import type { CreatedWebhook, EventLogPage, NotificationSettings } from "@server-types";
+import type { SdkCallRecord } from "@server-types";
+import type { WorkspacePage, WorkspaceRemoval } from "@server-types";
 import type { ApiErrorBody } from "../types/ui.types";
 
 // A refusal from this app's server, with the SDK's code when it came from one,

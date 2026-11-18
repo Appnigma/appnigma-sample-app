@@ -1,4 +1,4 @@
-import type { AccountDetail, IntegrationAction, IntegrationDetail } from "@server-types/integration.types";
+import type { AccountDetail, IntegrationAction, IntegrationDetail } from "@server-types";
 import type { ConnectField, PlatformCoverage } from "@appnigma/sdk";
 import { ArrowDownUp, ArrowLeft, Blocks, Briefcase, Building2, CheckCircle2, ExternalLink, History, RefreshCw, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import { useCallback, useEffect, useState, type FormEvent } from "react";

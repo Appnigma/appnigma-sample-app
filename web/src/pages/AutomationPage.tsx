@@ -1,4 +1,4 @@
-import type { AutomationDetail, AutomationGoLive, AutomationTrial } from "@server-types/automation.types";
+import type { AutomationDetail, AutomationGoLive, AutomationTrial } from "@server-types";
 import type { JsonObject, JsonValue, LogicEntry, LogicRun } from "@appnigma/sdk";
 import { ArrowLeft, CheckCircle2, FlaskConical, Rocket, Trash2, Workflow } from "lucide-react";
 import { useCallback, useEffect, useState, type FormEvent } from "react";

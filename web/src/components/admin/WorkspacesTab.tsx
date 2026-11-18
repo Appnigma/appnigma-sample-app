@@ -1,5 +1,5 @@
 import type { EndCustomerEntry } from "@appnigma/sdk";
-import type { WorkspaceRemoval } from "@server-types/workspace.types";
+import type { WorkspaceRemoval } from "@server-types";
 import { useCallback, useEffect, useState } from "react";
 import { api, messageOf } from "../../api/client";
 import { Notice } from "../Notice";

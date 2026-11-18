@@ -1,4 +1,4 @@
-import type { CustomerOverview } from "@server-types/customer.types";
+import type { CustomerOverview } from "@server-types";
 import type { RecentRecord, StageSummary } from "../types/ui.types";
 import { isRecent } from "./format";
 

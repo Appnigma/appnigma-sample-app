@@ -1,6 +1,6 @@
 # 5. New integrations, without new code
 
-Code: [`server/src/services/integrations.service.ts`](../server/src/services/integrations.service.ts)
+Code: [`server/src/features/integrations.ts`](../server/src/features/integrations.ts)
 
 The Integrations page is built from `platforms.list()`. When Appnigma ships a
 new integration for you, it shows up there, ready to connect. Your team does

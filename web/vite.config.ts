@@ -8,7 +8,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: { "@server-types": path.resolve(here, "../server/src/types") },
+    alias: { "@server-types": path.resolve(here, "../server/src/types.ts") },
   },
   server: {
     port: 4701,
