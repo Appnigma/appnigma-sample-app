@@ -11,10 +11,7 @@ import type {
   FunctionEntry,
   GetLogicGoLiveStatusOutput,
   JsonObject,
-  JsonValue,
   ListedClientEvent,
-  LogicEntry,
-  LogicProblem,
   LogicRun,
   PlatformConnectionType,
   PlatformCoverage,
@@ -121,65 +118,66 @@ type TranscriptPart = {
   sentences: { start: number; text: string }[];
 };
 
-// Automations: the workspace's own custom logic
-type NewAutomation = {
-  platform: string;
-  name: string;
+// Custom logic: one workspace's own rules on one integration
+type LogicStage = "writing" | "testing" | "ready" | "needs_change" | "not_built" | "going_live" | "live" | "failed";
+
+// The one try on a sample record: whether it did what it should, in words.
+type LogicTest = {
+  passed: boolean;
+  words: string;
+  calls: string[];
+};
+
+type NewCustomLogic = {
+  request: string;
   object: SdkObject;
   operation: "read" | "write";
   timing: "before" | "after";
-  request: string;
 };
 
-type AutomationDraft = {
+type CustomLogicItem = {
+  name: string;
+  asked: string | null;
+  summary: string | null;
+  description: string | null;
+  stage: LogicStage;
+  reason: string | null;
+  test: LogicTest | null;
+  hasDraft: boolean;
+  alwaysOn: boolean;
+  on: boolean;
+  logicId: string | null;
+  version: number | null;
+  startedAt: string | null;
+};
+
+type CustomLogicList = {
+  logic: CustomLogicItem[];
+  heldBack: string[];
+};
+
+type CustomLogicDraft = {
   code: string;
   revision: number;
   updatedAt: string;
   goingLive: boolean;
 };
 
-type AutomationDetail = {
-  platform: string;
-  name: string;
-  entry: LogicEntry | null;
+type CustomLogicDetail = {
+  item: CustomLogicItem;
   liveCode: string | null;
   liveCodeSha: string | null;
-  draft: AutomationDraft | null;
+  draft: CustomLogicDraft | null;
 };
 
-type AutomationList = {
-  automations: LogicEntry[];
-  heldBack: string[];
-};
+type CustomLogicGoLive = GetLogicGoLiveStatusOutput;
 
-type AutomationChange = {
-  saved: boolean;
-  summary: string | null;
-  problems: LogicProblem[];
-  revision: number | null;
-};
-
-type AutomationCheck = {
-  ready: boolean;
-  problems: LogicProblem[];
-};
-
-type AutomationTrial = {
-  outcome: "answered" | "failed" | "no_answer" | "did_not_build";
-  summary: string;
-  output: JsonValue;
-  calls: string[];
-  problems: LogicProblem[];
-};
-
-type AutomationGoLive = GetLogicGoLiveStatusOutput;
-
-type AutomationSwitch = {
+type CustomLogicSwitch = {
   on: boolean;
   runs: boolean;
 };
 
-type AutomationRuns = {
+type CustomLogicRuns = {
   runs: LogicRun[];
 };
 
@@ -249,17 +247,18 @@ type FunctionRun = {
 type FunctionResult = RunOutput;
 
 export type {
+  CustomLogicDetail,
+  CustomLogicDraft,
+  CustomLogicGoLive,
+  CustomLogicItem,
+  CustomLogicList,
+  CustomLogicRuns,
+  CustomLogicSwitch,
+  LogicStage,
+  LogicTest,
+  NewCustomLogic,
   AccountDetail,
   AppInfo,
-  AutomationChange,
-  AutomationCheck,
-  AutomationDetail,
-  AutomationDraft,
-  AutomationGoLive,
-  AutomationList,
-  AutomationRuns,
-  AutomationSwitch,
-  AutomationTrial,
   CreatedWebhook,
   CrmData,
   CustomerOverview,
@@ -273,7 +272,6 @@ export type {
   IntegrationAction,
   IntegrationDetail,
   IntegrationStatus,
-  NewAutomation,
   NotificationSettings,
   ReceivedEvent,
   RecentChange,

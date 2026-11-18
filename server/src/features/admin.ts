@@ -52,6 +52,17 @@ adminRouter.post(
   }),
 );
 
+// A self-serve page for one workspace, where its people manage their own
+// rules on their own. Each link works once, for a short while.
+adminRouter.post(
+  "/workspaces/self-serve-link",
+  route(async (request, response) => {
+    const { endCustomerId } = z.object({ endCustomerId: endCustomerIdSchema }).parse(request.body);
+    const link = await appnigma.portal.createLink({ endCustomerId });
+    response.json({ url: link.url });
+  }),
+);
+
 // Your team's own functions, with the shapes of their input and output.
 adminRouter.get(
   "/functions",

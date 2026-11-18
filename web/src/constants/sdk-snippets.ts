@@ -2,7 +2,7 @@ import type { SdkSnippet } from "../types/ui.types";
 
 const INTEGRATIONS = "server/src/features/integrations.ts";
 const CUSTOMERS = "server/src/features/customers.ts";
-const AUTOMATIONS = "server/src/features/automations.ts";
+const CUSTOM_LOGIC = "server/src/features/custom-logic.ts";
 const NOTIFICATIONS = "server/src/features/webhooks.ts";
 const ADMIN = "server/src/features/admin.ts";
 const RECORD_SYNC = "server/src/jobs/record-sync.ts";
@@ -45,20 +45,20 @@ const SDK_SNIPPETS: Record<string, SdkSnippet> = {
     file: RECORD_SYNC,
     code: 'const page = await appnigma.records.changes({ endCustomerId, platform, object: "deal", since });\nfor (const change of page.changes) apply(change.record);',
   },
-  "logic.list": { file: AUTOMATIONS, code: "const { logic, folderProblems } = await appnigma.logic.list({ endCustomerId });" },
-  "logic.get": { file: AUTOMATIONS, code: "const opened = await appnigma.logic.get({ endCustomerId, platform, name });\n// opened.file, opened.draft, opened.entry" },
-  "logic.create": { file: AUTOMATIONS, code: 'await appnigma.logic.create({ endCustomerId, platform, name, trigger: { object: "deal", operation: "write", timing: "before" } });' },
-  "logic.edit": { file: AUTOMATIONS, code: "const edited = await appnigma.logic.edit({ endCustomerId, platform, name, prompt, requestedBy });\n// edited.saved, edited.summary, edited.problems" },
-  "logic.update": { file: AUTOMATIONS, code: "await appnigma.logic.update({ endCustomerId, platform, name, source, revision });" },
-  "logic.check": { file: AUTOMATIONS, code: "const { problems } = await appnigma.logic.check({ endCustomerId, platform, name });" },
-  "logic.test": { file: AUTOMATIONS, code: "const tried = await appnigma.logic.test({ endCustomerId, platform, name, input });\n// tried.output or tried.error, tried.calls" },
-  "logic.goLive": { file: AUTOMATIONS, code: "await appnigma.logic.goLive({ endCustomerId, platform, name, revision });" },
-  "logic.goLiveStatus": { file: AUTOMATIONS, code: "const status = await appnigma.logic.goLiveStatus({ endCustomerId, platform, name });\n// checking, live, failed or none" },
-  "logic.discard": { file: AUTOMATIONS, code: "await appnigma.logic.discard({ endCustomerId, platform, name, revision });" },
-  "logic.switchOn": { file: AUTOMATIONS, code: "await appnigma.logic.switchOn({ logicId, endCustomerId });" },
-  "logic.switchOff": { file: AUTOMATIONS, code: "await appnigma.logic.switchOff({ logicId, endCustomerId });" },
-  "logic.runs": { file: AUTOMATIONS, code: "const { runs } = await appnigma.logic.runs({ logicId, endCustomerId, limit: 20 });" },
-  "portal.createLink": { file: AUTOMATIONS, code: "const link = await appnigma.portal.createLink({ endCustomerId });\n// open link.url" },
+  "logic.list": { file: CUSTOM_LOGIC, code: "const { logic, folderProblems } = await appnigma.logic.list({ endCustomerId });" },
+  "logic.get": { file: CUSTOM_LOGIC, code: "const opened = await appnigma.logic.get({ endCustomerId, platform, name });\n// opened.file, opened.draft, opened.entry" },
+  "logic.create": { file: CUSTOM_LOGIC, code: 'await appnigma.logic.create({ endCustomerId, platform, name, trigger: { object: "deal", operation: "write", timing: "before" } });' },
+  "logic.edit": { file: CUSTOM_LOGIC, code: "const edited = await appnigma.logic.edit({ endCustomerId, platform, name, prompt, requestedBy });\n// edited.saved, edited.summary, edited.problems" },
+  "logic.update": { file: CUSTOM_LOGIC, code: "await appnigma.logic.update({ endCustomerId, platform, name, source, revision });" },
+  "logic.check": { file: CUSTOM_LOGIC, code: "const { problems } = await appnigma.logic.check({ endCustomerId, platform, name });" },
+  "logic.test": { file: CUSTOM_LOGIC, code: "const tried = await appnigma.logic.test({ endCustomerId, platform, name, input });\n// tried.output or tried.error, tried.calls" },
+  "logic.goLive": { file: CUSTOM_LOGIC, code: "await appnigma.logic.goLive({ endCustomerId, platform, name, revision });" },
+  "logic.goLiveStatus": { file: CUSTOM_LOGIC, code: "const status = await appnigma.logic.goLiveStatus({ endCustomerId, platform, name });\n// checking, live, failed or none" },
+  "logic.discard": { file: CUSTOM_LOGIC, code: "await appnigma.logic.discard({ endCustomerId, platform, name, revision });" },
+  "logic.switchOn": { file: CUSTOM_LOGIC, code: "await appnigma.logic.switchOn({ logicId, endCustomerId });" },
+  "logic.switchOff": { file: CUSTOM_LOGIC, code: "await appnigma.logic.switchOff({ logicId, endCustomerId });" },
+  "logic.runs": { file: CUSTOM_LOGIC, code: "const { runs } = await appnigma.logic.runs({ logicId, endCustomerId, limit: 20 });" },
+  "portal.createLink": { file: ADMIN, code: "const link = await appnigma.portal.createLink({ endCustomerId });\n// a self-serve page for that workspace" },
   "webhooks.create": { file: NOTIFICATIONS, code: "const { webhook, secret } = await appnigma.webhooks.create({ url });\n// the secret is shown once: keep it" },
   "webhooks.list": { file: NOTIFICATIONS, code: "const { webhooks } = await appnigma.webhooks.list();" },
   "webhooks.delete": { file: NOTIFICATIONS, code: "await appnigma.webhooks.delete({ webhookId });" },

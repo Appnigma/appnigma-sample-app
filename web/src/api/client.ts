@@ -1,16 +1,6 @@
-import type { ClientEventType, JsonObject, SyncSettings } from "@appnigma/sdk";
+import type { ClientEventType, SyncSettings } from "@appnigma/sdk";
 import type { AppInfo } from "@server-types";
-import type {
-  AutomationChange,
-  AutomationCheck,
-  AutomationDetail,
-  AutomationGoLive,
-  AutomationList,
-  AutomationRuns,
-  AutomationSwitch,
-  AutomationTrial,
-  NewAutomation,
-} from "@server-types";
+import type { CustomLogicDetail, CustomLogicGoLive, CustomLogicList, CustomLogicRuns, CustomLogicSwitch, NewCustomLogic } from "@server-types";
 import type { RecordedCall, TranscriptPart } from "@server-types";
 import type { RecentChanges } from "@server-types";
 import type { CustomerOverview, CustomerRecord, RecordEdit, RecordKind } from "@server-types";
@@ -52,7 +42,9 @@ const request = async <Answer>(method: string, path: string, body?: object): Pro
   return answer;
 };
 
-const automationPath = (platform: string, name: string): string => `/api/automations/${encodeURIComponent(platform)}/${encodeURIComponent(name)}`;
+// One integration's custom logic, and one rule in it.
+const logicPath = (platform: string, name?: string): string =>
+  `/api/integrations/${encodeURIComponent(platform)}/logic${name === undefined ? "" : `/${encodeURIComponent(name)}`}`;
 
 const query = (values: Record<string, string | undefined>): string => {
   const search = new URLSearchParams();
@@ -82,23 +74,21 @@ const api = {
   addDeal: (input: { platform: string; name: string; amount?: number; closeDate?: string; companyId?: string }) => request<{ deal: object }>("POST", "/api/customers/deals", input),
   calls: () => request<{ calls: RecordedCall[] }>("GET", "/api/calls"),
   transcript: (callId: string) => request<{ transcript: TranscriptPart[] }>("GET", `/api/calls/${callId}/transcript`),
-  automations: () => request<AutomationList>("GET", "/api/automations"),
-  createAutomation: (input: NewAutomation) => request<AutomationChange>("POST", "/api/automations", input),
-  automationEditorLink: () => request<{ url: string }>("POST", "/api/automations/editor-link"),
-  automation: (platform: string, name: string) => request<AutomationDetail>("GET", automationPath(platform, name)),
-  changeAutomation: (platform: string, name: string, words: string, revision?: number) =>
-    request<AutomationChange>("POST", `${automationPath(platform, name)}/change`, { request: words, revision }),
-  saveAutomationCode: (platform: string, name: string, input: { code: string; revision: number; liveCodeSha?: string }) =>
-    request<{ revision: number }>("PUT", `${automationPath(platform, name)}/code`, input),
-  checkAutomation: (platform: string, name: string) => request<AutomationCheck>("POST", `${automationPath(platform, name)}/check`),
-  tryAutomation: (platform: string, name: string, input: JsonObject) => request<AutomationTrial>("POST", `${automationPath(platform, name)}/try`, { input }),
-  putAutomationLive: (platform: string, name: string, revision: number) => request<AutomationGoLive>("POST", `${automationPath(platform, name)}/go-live`, { revision }),
-  goLiveProgress: (platform: string, name: string) => request<AutomationGoLive>("GET", `${automationPath(platform, name)}/go-live`),
-  throwAwayDraft: (platform: string, name: string, revision: number) => request<{ discarded: boolean }>("POST", `${automationPath(platform, name)}/discard`, { revision }),
-  switchAutomation: (logicId: string, on: boolean) => request<AutomationSwitch>("POST", `/api/automations/by-id/${encodeURIComponent(logicId)}/switch`, { on }),
-  automationRuns: (logicId: string) => request<AutomationRuns>("GET", `/api/automations/by-id/${encodeURIComponent(logicId)}/runs`),
+  customLogic: (platform: string) => request<CustomLogicList>("GET", logicPath(platform)),
+  createCustomLogic: (platform: string, input: NewCustomLogic) => request<{ name: string }>("POST", logicPath(platform), input),
+  customLogicDetail: (platform: string, name: string) => request<CustomLogicDetail>("GET", logicPath(platform, name)),
+  changeCustomLogic: (platform: string, name: string, words: string) => request<{ name: string }>("POST", `${logicPath(platform, name)}/change`, { request: words }),
+  saveCustomLogicCode: (platform: string, name: string, input: { code: string; revision: number; liveCodeSha?: string }) =>
+    request<{ revision: number }>("PUT", `${logicPath(platform, name)}/code`, input),
+  putCustomLogicLive: (platform: string, name: string, revision: number) => request<CustomLogicGoLive>("POST", `${logicPath(platform, name)}/go-live`, { revision }),
+  customLogicGoLive: (platform: string, name: string) => request<CustomLogicGoLive>("GET", `${logicPath(platform, name)}/go-live`),
+  discardCustomLogic: (platform: string, name: string, revision: number) => request<{ discarded: boolean }>("POST", `${logicPath(platform, name)}/discard`, { revision }),
+  switchCustomLogic: (platform: string, logicId: string, on: boolean) =>
+    request<CustomLogicSwitch>("POST", `${logicPath(platform)}/by-id/${encodeURIComponent(logicId)}/switch`, { on }),
+  customLogicRuns: (platform: string, logicId: string) => request<CustomLogicRuns>("GET", `${logicPath(platform)}/by-id/${encodeURIComponent(logicId)}/runs`),
   workspaces: (cursor?: string) => request<WorkspacePage>("GET", `/api/admin/workspaces${query({ cursor })}`),
   removeWorkspace: (endCustomerId: string) => request<WorkspaceRemoval>("POST", "/api/admin/workspaces/remove", { endCustomerId }),
+  selfServeLink: (endCustomerId: string) => request<{ url: string }>("POST", "/api/admin/workspaces/self-serve-link", { endCustomerId }),
   notifications: () => request<NotificationSettings>("GET", "/api/admin/notifications"),
   addWebhook: (url: string) => request<CreatedWebhook>("POST", "/api/admin/webhooks", { url }),
   removeWebhook: (webhookId: string) => request<{ deleted: boolean }>("DELETE", `/api/admin/webhooks/${encodeURIComponent(webhookId)}`),

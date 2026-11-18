@@ -4,9 +4,9 @@ import express from "express";
 import { env } from "./env.js";
 import { adminRouter } from "./features/admin.js";
 import { appRouter } from "./features/app.js";
-import { automationsRouter } from "./features/automations.js";
 import { callsRouter } from "./features/calls.js";
 import { customersRouter } from "./features/customers.js";
+import { customLogicRouter } from "./features/custom-logic.js";
 import { integrationsRouter } from "./features/integrations.js";
 import { notificationsRouter, WEBHOOK_RECEIVER_PATH, webhookReceiverRouter } from "./features/webhooks.js";
 import { startRecordSync } from "./jobs/record-sync.js";
@@ -27,10 +27,11 @@ app.get("/healthz", (_request, response) => {
 
 app.use("/api", withSession);
 app.use("/api/app", appRouter);
+// The more specific path first, so a rule's routes never reach the integrations router.
+app.use("/api/integrations/:platform/logic", customLogicRouter);
 app.use("/api/integrations", integrationsRouter);
 app.use("/api/customers", customersRouter);
 app.use("/api/calls", callsRouter);
-app.use("/api/automations", automationsRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/admin", notificationsRouter);
 app.use("/api/under-the-hood", underTheHoodRouter);

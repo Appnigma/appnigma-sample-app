@@ -42,10 +42,10 @@ https address.
 | 3. Read and write their CRM data | The Customers page, Add a contact, company or deal, and editing a record | [`features/customers.ts`](server/src/features/customers.ts) |
 | 4. Reach anything else on their platform | Which account they connected, on the integration's page | [`features/integrations.ts`](server/src/features/integrations.ts) |
 | 5. Run ready-made actions | The Calls page (Gong transcripts), shown once Gong is switched on | [`features/calls.ts`](server/src/features/calls.ts) |
-| 6. Write custom logic | Automations: write a rule in words, check it, try it, put it live, switch it on and off, see its runs; and a link that lets a customer manage their own | [`features/automations.ts`](server/src/features/automations.ts) |
+| 6. Let customers write their own logic | On each integration's page: a customer says what should happen in plain words, and the rule is written, checked and tried on sample data for them, then put live; they can ask for a change, switch it on and off, and see its runs | [`features/custom-logic.ts`](server/src/features/custom-logic.ts) |
 | 7. Hear what happened | Admin → Webhooks and alerts, and Event log; a signed webhook receiver | [`features/webhooks.ts`](server/src/features/webhooks.ts) |
 | 8. Keep a copy of their records | Recent changes on each integration's page, kept fresh by a background job | [`jobs/record-sync.ts`](server/src/jobs/record-sync.ts) |
-| 9. Look after workspaces | Admin → Workspaces: every connection, and removing a workspace that left | [`features/admin.ts`](server/src/features/admin.ts) |
+| 9. Look after workspaces | Admin → Workspaces: every connection, a self-serve link for one workspace, and removing a workspace that left | [`features/admin.ts`](server/src/features/admin.ts) |
 | 10. Your own functions | Admin → Functions and Developer guide | [`features/admin.ts`](server/src/features/admin.ts) |
 | Handle every failure | A clear message instead of a crash | [`errors.ts`](server/src/errors.ts) |
 
@@ -61,8 +61,8 @@ https address.
 | `crm.contacts.*`, `crm.companies.*`, `crm.deals.*` (`list`, `get`, `create`, `update`) | Customers page and its record panel | `features/customers.ts` |
 | `request` | Which account they connected, from the platform's own API | `features/integrations.ts` |
 | `actions.list`, `actions.run` | An integration's actions, and the Calls page | `features/integrations.ts`, `features/calls.ts` |
-| `logic.list`, `get`, `create`, `edit`, `update`, `check`, `test`, `goLive`, `goLiveStatus`, `switchOn`, `switchOff`, `runs`, `discard` | Automations and one automation's page | `features/automations.ts` |
-| `portal.createLink` | Automations: let a customer manage their own rules | `features/automations.ts` |
+| `logic.list`, `get`, `create`, `edit`, `update`, `check`, `test`, `goLive`, `goLiveStatus`, `switchOn`, `switchOff`, `runs`, `discard` | Custom logic on each integration's page | `features/custom-logic.ts` |
+| `portal.createLink` | Admin → Workspaces: a self-serve link for one workspace | `features/admin.ts` |
 | `webhooks.create`, `webhooks.list`, `webhooks.delete`, `alerts.get`, `alerts.set` | Admin → Webhooks and alerts | `features/webhooks.ts` |
 | `events.list` | Admin → Event log | `features/webhooks.ts` |
 | `verifyWebhook` | The webhook receiver, before anything reads the body | `features/webhooks.ts` |
@@ -123,9 +123,9 @@ server/src/
   env.ts  inputs.ts  types.ts  under-the-hood.ts  server.ts
 server/test/             the check that every SDK call is used
 web/src/
-  pages/                 Home, Customers, Integrations, one integration, Calls,
-                         Automations, one automation, Admin
-  components/            layout, Under the hood panel, Admin tabs
+  pages/                 Home, Customers, Integrations, one integration (with
+                         its custom logic), Calls, Admin
+  components/            layout, custom logic, Under the hood panel, Admin tabs
 docs/                    one page per flow
 ```
 

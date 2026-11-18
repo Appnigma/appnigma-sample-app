@@ -4,6 +4,7 @@ import { ArrowDownUp, ArrowLeft, Blocks, Briefcase, Building2, CheckCircle2, Ext
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import { api, codeOf, messageOf } from "../api/client";
+import { CustomLogicSection } from "../components/CustomLogicSection";
 import { EmptyState } from "../components/EmptyState";
 import { Notice } from "../components/Notice";
 import { PlatformLogo } from "../components/PlatformLogo";
@@ -368,6 +369,8 @@ const IntegrationPage = () => {
           />
         )
       )}
+
+      {connected && integration.crmData !== "none" && <CustomLogicSection integration={integration} canChange={app.features.portal} />}
     </div>
   );
 };
