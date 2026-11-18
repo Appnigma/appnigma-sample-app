@@ -31,6 +31,7 @@ const MESSAGE_BY_CODE: Partial<Record<SdkErrorCode, string>> = {
   CONNECT_KEY_CHANGED: "That did not go through. Send it again.",
   WEBHOOK_LIMIT_REACHED: "You already have five webhooks. Delete one first.",
   WEBHOOK_EXISTS: "There is already a webhook at that address.",
+  WEBHOOK_ADDRESS_REFUSED: "That address can't take deliveries. Use a public https address that reaches this server.",
   TIMED_OUT: "That took too long. Check whether it went through before trying again.",
   PLATFORM_ERROR: "The platform could not be reached. Try again in a minute.",
 };
