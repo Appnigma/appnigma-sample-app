@@ -29,6 +29,14 @@ const settingsSchema = z.object({
     .string({ error: "is missing. Put your Appnigma SDK key in .env" })
     .trim()
     .min(1, "is missing. Put your Appnigma SDK key in .env"),
+  // The secret webhooks.create answered, once, for this app's webhook. Without
+  // it, only a webhook made from the Admin page since this server started can
+  // be checked.
+  APPNIGMA_WEBHOOK_SECRET: z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) => (value ? value : undefined)),
   PRODUCT_NAME: z.string().trim().min(1).default("Acme Desk"),
   BRAND_COLOR: z
     .string()
@@ -50,6 +58,7 @@ const env = {
   port: settings.PORT,
   publicUrl: settings.PUBLIC_URL.replace(/\/+$/, ""),
   returnPageUrl: settings.RETURN_PAGE_URL ?? null,
+  webhookSecret: settings.APPNIGMA_WEBHOOK_SECRET ?? null,
   productName: settings.PRODUCT_NAME,
   brandColor: settings.BRAND_COLOR,
   webDistDirectory: path.join(repositoryRoot, "web", "dist"),

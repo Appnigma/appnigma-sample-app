@@ -1,0 +1,3 @@
+const WORKSPACES_PAGE_SIZE = 50;
+
+export { WORKSPACES_PAGE_SIZE };

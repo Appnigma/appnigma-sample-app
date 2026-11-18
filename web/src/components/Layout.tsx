@@ -9,7 +9,9 @@ import {
   Phone,
   Repeat,
   Search,
+  Settings,
   Users,
+  Workflow,
 } from "lucide-react";
 import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router";
@@ -41,7 +43,17 @@ const NAV = [
     needsCalls: false,
   },
   { to: "/calls", label: "Calls", end: false, icon: Phone, needsCalls: true },
+  {
+    to: "/automations",
+    label: "Automations",
+    end: false,
+    icon: Workflow,
+    needsCalls: false,
+  },
 ];
+
+// Your team's own page. In your product it sits behind your staff login.
+const TEAM_NAV = [{ to: "/admin", label: "Admin", end: false, icon: Settings }];
 
 const WorkspaceMenu = () => {
   const { app, refresh } = useApp();
@@ -122,6 +134,22 @@ const Sidebar = () => {
             </NavLink>
           ),
         )}
+      </nav>
+      <p className="mt-6 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Your team</p>
+      <nav className="mt-1 space-y-0.5">
+        {TEAM_NAV.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-lg px-3 py-2 font-medium transition ${isActive ? "bg-brand/10 text-brand" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`
+            }
+          >
+            <item.icon className="h-4 w-4" />
+            {item.label}
+          </NavLink>
+        ))}
       </nav>
       <div className="mt-auto space-y-3">
         <div className="rounded-xl bg-slate-50 p-3">

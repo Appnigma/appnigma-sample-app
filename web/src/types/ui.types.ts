@@ -8,7 +8,7 @@ type AppContextValue = {
 };
 
 type ApiErrorBody = {
-  error?: { message?: string; code?: string };
+  error?: { message?: string; code?: string; feature?: string };
 };
 
 type PlatformInfo = {
@@ -50,4 +50,37 @@ type PollingState<Value> = {
   reload: () => Promise<void>;
 };
 
-export type { ApiErrorBody, AppContextValue, ChecklistItem, PlatformInfo, PollingState, RecentRecord, SdkSnippet, StageSummary };
+type OpenRecord = {
+  kind: "contacts" | "companies" | "deals";
+  id: string;
+};
+
+type AddKind = "contact" | "company" | "deal";
+
+type PlainStatus = {
+  label: string;
+  tone: "good" | "waiting" | "bad" | "quiet";
+};
+
+type PageMessage = {
+  tone: PlainStatus["tone"];
+  text: string;
+};
+
+type AdminTab = "workspaces" | "notifications" | "events" | "functions" | "guide";
+
+export type {
+  AddKind,
+  AdminTab,
+  ApiErrorBody,
+  AppContextValue,
+  ChecklistItem,
+  OpenRecord,
+  PageMessage,
+  PlainStatus,
+  PlatformInfo,
+  PollingState,
+  RecentRecord,
+  SdkSnippet,
+  StageSummary,
+};

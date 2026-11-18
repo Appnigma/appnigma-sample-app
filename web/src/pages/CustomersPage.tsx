@@ -1,20 +1,24 @@
-import type { CustomerOverview } from "@server-types/customer.types";
-import { Building2, Plus, Users, X } from "lucide-react";
-import { useCallback, useState, type FormEvent } from "react";
+import type { CustomerOverview, RecordKind } from "@server-types/customer.types";
+import { Building2, Plus, Users } from "lucide-react";
+import { useCallback, useState } from "react";
 import { Link } from "react-router";
-import { api, messageOf } from "../api/client";
+import { api } from "../api/client";
+import { AddRecordCard } from "../components/AddRecordCard";
 import { Avatar } from "../components/Avatar";
 import { EmptyState } from "../components/EmptyState";
 import { PlatformLogo } from "../components/PlatformLogo";
+import { RecordPanel } from "../components/RecordPanel";
 import { PageSkeleton } from "../components/Skeleton";
 import { usePolling } from "../hooks/use-polling";
 import { openPipelineOf, stagesOf } from "../lib/customers";
 import { compactMoney, isRecent, money, timeAgo } from "../lib/format";
-import { markDone } from "../lib/progress";
+import type { OpenRecord } from "../types/ui.types";
 
 const REFRESH_MS = 5000;
 
 const TABS = ["Companies", "Contacts", "Deals"] as const;
+
+const TAB_KINDS: Record<(typeof TABS)[number], RecordKind> = { Companies: "companies", Contacts: "contacts", Deals: "deals" };
 
 const STAGE_COLORS = ["bg-brand", "bg-sky-400", "bg-emerald-400", "bg-amber-400", "bg-violet-400", "bg-rose-400"];
 
@@ -27,7 +31,7 @@ const DEAL_STATUS_STYLES: Record<"open" | "won" | "lost", string> = {
 const UpdatedBadge = ({ at }: { at: string | null }) =>
   isRecent(at) && at ? <span className="ml-2 rounded-full bg-brand/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand">Updated {timeAgo(at)}</span> : null;
 
-const rowClass = (at: string | null): string => `border-t border-slate-100 transition-colors ${isRecent(at) ? "bg-brand/[0.04]" : "hover:bg-slate-50/70"}`;
+const rowClass = (at: string | null): string => `cursor-pointer border-t border-slate-100 transition-colors ${isRecent(at) ? "bg-brand/[0.04]" : "hover:bg-slate-50/70"}`;
 
 const PipelineSummary = ({ overview }: { overview: CustomerOverview }) => {
   const stages = stagesOf(overview);
@@ -55,59 +59,15 @@ const PipelineSummary = ({ overview }: { overview: CustomerOverview }) => {
   );
 };
 
-const AddContactCard = ({ overview, onClose, onAdded }: { overview: CustomerOverview; onClose: () => void; onAdded: () => Promise<void> }) => {
-  const [form, setForm] = useState({ firstName: "", lastName: "", email: "" });
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const submit = async (event: FormEvent) => {
-    event.preventDefault();
-    if (!overview.platform) return;
-    setSaving(true);
-    try {
-      await api.addContact({ platform: overview.platform, ...form });
-      markDone("contact");
-      setForm({ firstName: "", lastName: "", email: "" });
-      await onAdded();
-      onClose();
-    } catch (failure) {
-      setError(messageOf(failure));
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <form onSubmit={(event) => void submit(event)} className="panel p-5">
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="section-title">Add a contact</h2>
-          <p className="mt-0.5 text-xs text-slate-500">Saved straight to {overview.platformLabel}. The same email never makes a duplicate.</p>
-        </div>
-        <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-700" aria-label="Close">
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-      <div className="mt-4 grid gap-2 sm:grid-cols-3">
-        <input className="input" required placeholder="First name" value={form.firstName} onChange={(event) => setForm({ ...form, firstName: event.target.value })} />
-        <input className="input" required placeholder="Last name" value={form.lastName} onChange={(event) => setForm({ ...form, lastName: event.target.value })} />
-        <input className="input" required type="email" placeholder="Email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
-      </div>
-      {error && <p className="mt-2 text-red-600">{error}</p>}
-      <button type="submit" disabled={saving} className="button-primary mt-3">
-        <Plus className="h-4 w-4" /> {saving ? "Saving" : `Add to ${overview.platformLabel}`}
-      </button>
-    </form>
-  );
-};
-
 // Your customers' own CRM data, inside your product. The same code works for
-// Salesforce, HubSpot, Pipedrive and the rest: the shapes never change.
+// Salesforce, HubSpot, Pipedrive and the rest: the shapes never change. Open a
+// row to read it fresh and change it; add contacts, companies and deals.
 const CustomersPage = () => {
   const load = useCallback(() => api.customers(), []);
   const { data: overview, error, reload } = usePolling(load, REFRESH_MS);
   const [tab, setTab] = useState<(typeof TABS)[number]>("Companies");
   const [adding, setAdding] = useState(false);
+  const [openRecord, setOpenRecord] = useState<OpenRecord | null>(null);
 
   if (error) return <EmptyState icon={<Users className="h-5 w-5" />} title="We could not load your customers" detail={error} />;
   if (!overview) return <PageSkeleton />;
@@ -143,11 +103,14 @@ const CustomersPage = () => {
           </p>
         </div>
         <button type="button" onClick={() => setAdding(!adding)} className="button-primary">
-          <Plus className="h-4 w-4" /> Add contact
+          <Plus className="h-4 w-4" /> Add
         </button>
       </div>
 
-      {adding && <AddContactCard overview={overview} onClose={() => setAdding(false)} onAdded={reload} />}
+      {adding && <AddRecordCard overview={overview} onClose={() => setAdding(false)} onAdded={reload} />}
+      {openRecord && (
+        <RecordPanel open={openRecord} platform={overview.platform} platformLabel={overview.platformLabel ?? overview.platform} onClose={() => setOpenRecord(null)} onSaved={reload} />
+      )}
 
       <PipelineSummary overview={overview} />
 
@@ -165,6 +128,12 @@ const CustomersPage = () => {
           ))}
         </div>
 
+        {overview.problems[TAB_KINDS[tab]] && (
+          <p className="border-b border-slate-100 bg-amber-50 px-5 py-3 text-amber-800">
+            {overview.platformLabel ?? "Your CRM"} didn't send your {TAB_KINDS[tab]}: {overview.problems[TAB_KINDS[tab]]}
+          </p>
+        )}
+
         {tab === "Companies" && (
           <table className="w-full">
             <thead className="table-head">
@@ -179,7 +148,7 @@ const CustomersPage = () => {
               {overview.companies.map((company) => {
                 const open = overview.deals.filter((deal) => deal.companyId === company.id && deal.status === "open");
                 return (
-                  <tr key={company.id} className={rowClass(company.updatedAt)}>
+                  <tr key={company.id} className={rowClass(company.updatedAt)} onClick={() => setOpenRecord({ kind: "companies", id: company.id })}>
                     <td className="px-5 py-3">
                       <span className="flex items-center gap-3 font-medium">
                         <Avatar name={company.name ?? "?"} size="small" />
@@ -209,7 +178,7 @@ const CustomersPage = () => {
             </thead>
             <tbody>
               {overview.contacts.map((contact) => (
-                <tr key={contact.id} className={rowClass(contact.updatedAt)}>
+                <tr key={contact.id} className={rowClass(contact.updatedAt)} onClick={() => setOpenRecord({ kind: "contacts", id: contact.id })}>
                   <td className="px-5 py-3">
                     <span className="flex items-center gap-3 font-medium">
                       <Avatar name={contact.fullName ?? "?"} size="small" />
@@ -238,7 +207,7 @@ const CustomersPage = () => {
             </thead>
             <tbody>
               {overview.deals.map((deal) => (
-                <tr key={deal.id} className={rowClass(deal.updatedAt)}>
+                <tr key={deal.id} className={rowClass(deal.updatedAt)} onClick={() => setOpenRecord({ kind: "deals", id: deal.id })}>
                   <td className="px-5 py-3">
                     <span className="font-medium">{deal.name}</span>
                     <UpdatedBadge at={deal.updatedAt} />

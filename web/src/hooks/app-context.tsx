@@ -12,6 +12,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
   const [underTheHoodOpen, setUnderTheHoodOpen] = useState(false);
 
   const refresh = useCallback(async () => {
+    setError(null);
     try {
       const info = await api.app();
       setApp(info);
@@ -28,7 +29,17 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const value = useMemo(() => (app ? { app, refresh, underTheHoodOpen, setUnderTheHoodOpen } : null), [app, refresh, underTheHoodOpen]);
 
-  if (error) return <div className="p-8 text-red-600">{error}</div>;
+  if (error) {
+    return (
+      <div className="mx-auto max-w-md space-y-3 p-8 text-center">
+        <p className="font-medium text-slate-800">This page couldn't load just now.</p>
+        <p className="text-slate-500">{error}</p>
+        <button type="button" onClick={() => void refresh()} className="button-secondary">
+          Try again
+        </button>
+      </div>
+    );
+  }
   if (!value) return <div className="p-8 text-slate-500">Loading…</div>;
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
