@@ -69,12 +69,23 @@ type PageMessage = {
 
 type AdminTab = "workspaces" | "notifications" | "events" | "functions" | "guide";
 
+// The tabs on a connected integration's page.
+type IntegrationTab = "overview" | "logic" | "mapping";
+
+// One row of the field mapping preview: a field in this app and the one it fills on the platform.
+type MappingPreviewGroup = {
+  object: string;
+  pairs: { yours: string; theirs: string }[];
+};
+
 export type {
   AddKind,
   AdminTab,
   ApiErrorBody,
   AppContextValue,
   ChecklistItem,
+  IntegrationTab,
+  MappingPreviewGroup,
   OpenRecord,
   PageMessage,
   PlainStatus,

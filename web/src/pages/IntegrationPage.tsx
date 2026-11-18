@@ -6,6 +6,7 @@ import { Link, useParams, useSearchParams } from "react-router";
 import { api, codeOf, messageOf } from "../api/client";
 import { CustomLogicSection } from "../components/CustomLogicSection";
 import { EmptyState } from "../components/EmptyState";
+import { FieldMappingPreview } from "../components/FieldMappingPreview";
 import { Notice } from "../components/Notice";
 import { PlatformLogo } from "../components/PlatformLogo";
 import { PageSkeleton } from "../components/Skeleton";
@@ -15,6 +16,8 @@ import { usePolling } from "../hooks/use-polling";
 import { timeAgo } from "../lib/format";
 import { infoOf } from "../lib/platforms";
 import { syncStatusOf } from "../lib/sync";
+import { INTEGRATION_TABS } from "../constants/integration";
+import type { IntegrationTab } from "../types/ui.types";
 
 const CHANGES_REFRESH_MS = 30_000;
 
@@ -196,7 +199,7 @@ const ActionsPanel = ({ integration }: { integration: IntegrationDetail }) => {
 const IntegrationPage = () => {
   const { platform = "" } = useParams();
   const { app } = useApp();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [integration, setIntegration] = useState<IntegrationDetail | null>(null);
   const [unavailable, setUnavailable] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -261,6 +264,8 @@ const IntegrationPage = () => {
   const connected = integration.status === "connected";
   const typesDetails = integration.connectionType === "fields";
   const sync = syncStatusOf(integration.sync);
+  const tabs = INTEGRATION_TABS.filter((item) => !item.crmOnly || integration.crmData !== "none");
+  const tab: IntegrationTab = tabs.find((item) => item.key === searchParams.get("tab"))?.key ?? "overview";
 
   return (
     <div className="space-y-6">
@@ -335,7 +340,27 @@ const IntegrationPage = () => {
 
       {!connected && typesDetails && <ConnectForm integration={integration} onConnected={load} />}
 
-      {connected ? (
+      {connected && (
+        <div role="tablist" className="flex gap-1 border-b border-slate-200">
+          {tabs.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              role="tab"
+              aria-selected={tab === item.key}
+              onClick={() => setSearchParams(item.key === "overview" ? {} : { tab: item.key }, { replace: true })}
+              className={`-mb-px border-b-2 px-3 py-2.5 font-semibold transition ${tab === item.key ? "border-brand text-slate-900" : "border-transparent text-slate-500 hover:text-slate-800"}`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {connected && tab === "logic" && <CustomLogicSection integration={integration} canChange={app.features.portal} />}
+      {connected && tab === "mapping" && <FieldMappingPreview label={integration.label} />}
+
+      {connected && tab === "overview" ? (
         <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
           <div className="space-y-6">
             {app.features.sync && integration.crmData !== "none" ? (
@@ -361,6 +386,7 @@ const IntegrationPage = () => {
           </div>
         </div>
       ) : (
+        !connected &&
         !typesDetails && (
           <EmptyState
             icon={<PlatformLogo platform={integration.platform} label={integration.label} logoUrl={integration.logoUrl} size="small" />}
@@ -369,8 +395,6 @@ const IntegrationPage = () => {
           />
         )
       )}
-
-      {connected && integration.crmData !== "none" && <CustomLogicSection integration={integration} canChange={app.features.portal} />}
     </div>
   );
 };

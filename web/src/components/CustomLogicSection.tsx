@@ -271,7 +271,7 @@ const RuleDetail = ({ platform, item, canChange, onChanged }: { platform: string
 };
 
 // Asking for a new rule in plain words, with when it runs.
-const NewRule = ({ integration, onStarted }: { integration: IntegrationDetail; onStarted: (name: string) => Promise<void> }) => {
+const NewRule = ({ integration, onStarted, onCancel }: { integration: IntegrationDetail; onStarted: (name: string) => Promise<void>; onCancel?: () => void }) => {
   const [form, setForm] = useState<NewCustomLogic>({ request: "", timing: "before", object: "company", operation: "write" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -292,9 +292,9 @@ const NewRule = ({ integration, onStarted }: { integration: IntegrationDetail; o
   };
 
   return (
-    <form onSubmit={(event) => void submit(event)} className="space-y-3 border-b border-slate-100 px-5 py-4">
+    <form onSubmit={(event) => void submit(event)} className="space-y-4 border-b border-slate-100 bg-slate-50/60 px-5 py-5">
       <label className="block">
-        <span className="font-medium">What should happen?</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">What should happen?</span>
         <textarea
           className="input mt-1 min-h-20"
           required
@@ -304,7 +304,7 @@ const NewRule = ({ integration, onStarted }: { integration: IntegrationDetail; o
         />
       </label>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-slate-500">Runs</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">When it runs</span>
         <select className="input w-auto" value={form.timing} onChange={(event) => setForm({ ...form, timing: TIMING_CHOICES.find((choice) => choice.value === event.target.value)?.value ?? form.timing })}>
           {TIMING_CHOICES.map((choice) => (
             <option key={choice.value} value={choice.value}>
@@ -326,9 +326,16 @@ const NewRule = ({ integration, onStarted }: { integration: IntegrationDetail; o
             </option>
           ))}
         </select>
-        <button type="submit" disabled={saving || !form.request.trim()} className="button-primary ml-auto">
-          <Sparkles className="h-4 w-4" /> {saving ? "Starting" : "Create"}
-        </button>
+        <span className="ml-auto flex items-center gap-2">
+          {onCancel && (
+            <button type="button" onClick={onCancel} className="button-secondary">
+              Cancel
+            </button>
+          )}
+          <button type="submit" disabled={saving || !form.request.trim()} className="button-primary">
+            <Sparkles className="h-4 w-4" /> {saving ? "Starting" : "Create"}
+          </button>
+        </span>
       </div>
       {error && <p className="text-rose-600">{error}</p>}
     </form>
@@ -342,6 +349,7 @@ const CustomLogicSection = ({ integration, canChange }: { integration: Integrati
   const [list, setList] = useState<CustomLogicList | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [opened, setOpened] = useState<string | null>(null);
+  const [asking, setAsking] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -364,18 +372,29 @@ const CustomLogicSection = ({ integration, canChange }: { integration: Integrati
   }, [moving, list, load]);
 
   const started = async (name: string) => {
+    setAsking(false);
     setOpened(name);
     await load();
   };
+  const empty = list !== null && list.logic.length === 0;
+  const showForm = canChange && (asking || empty);
 
   return (
     <section className="panel overflow-hidden">
-      <div className="border-b border-slate-100 px-5 py-4">
-        <h2 className="section-title">Custom logic</h2>
-        <p className="mt-0.5 text-slate-500">Rules that run when your {integration.label} data is read or saved. Say what should happen, and it's written and tested for you.</p>
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 px-5 py-4">
+        <div className="min-w-0">
+          <h2 className="section-title">Custom logic</h2>
+          <p className="mt-0.5 text-slate-500">Rules that run when your {integration.label} data is read or saved. Say what should happen, and it's written and tested for you.</p>
+        </div>
+        {canChange && !showForm && (
+          <button type="button" onClick={() => setAsking(true)} className="button-primary">
+            <Sparkles className="h-4 w-4" /> New rule
+          </button>
+        )}
       </div>
 
-      {canChange ? <NewRule integration={integration} onStarted={started} /> : <p className="border-b border-slate-100 px-5 py-4 text-slate-500">Custom logic is not switched on for your account yet.</p>}
+      {!canChange && <p className="border-b border-slate-100 px-5 py-4 text-slate-500">Custom logic is not switched on for your account yet.</p>}
+      {showForm && <NewRule integration={integration} onStarted={started} onCancel={empty ? undefined : () => setAsking(false)} />}
 
       {error && <p className="px-5 py-4 text-rose-600">{error}</p>}
       {list?.heldBack.map((reason) => (
@@ -384,7 +403,7 @@ const CustomLogicSection = ({ integration, canChange }: { integration: Integrati
         </p>
       ))}
       {!list && !error && <p className="px-5 py-6 text-slate-400">Reading…</p>}
-      {list && list.logic.length === 0 && <p className="px-5 py-6 text-slate-500">No rules yet. Say what should happen above, and it shows up here while it's written.</p>}
+      {empty && <p className="px-5 py-6 text-center text-slate-500">No rules yet. Say what should happen above, and it shows up here while it's written and tested.</p>}
       {list && list.logic.length > 0 && (
         <ul className="divide-y divide-slate-100">
           {list.logic.map((item) => {
