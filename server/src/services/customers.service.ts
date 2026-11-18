@@ -96,7 +96,9 @@ const updateCustomerRecord = async (endCustomerId: string, id: string, edit: Rec
     const { record } = await appnigma.crm.companies.update({ ...target, record: { name: edit.name, domain: edit.domain || null } });
     return { kind: edit.kind, record };
   }
-  const { record } = await appnigma.crm.deals.update({ ...target, record: { name: edit.name, amount: edit.amount, closeDate: edit.closeDate } });
+  // A close date goes only when one was entered: some CRMs (Attio) have none on a deal and refuse the field.
+  const closeDate = edit.closeDate ? { closeDate: edit.closeDate } : {};
+  const { record } = await appnigma.crm.deals.update({ ...target, record: { name: edit.name, amount: edit.amount, ...closeDate } });
   return { kind: edit.kind, record };
 };
 

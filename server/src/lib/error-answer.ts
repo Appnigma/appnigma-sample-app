@@ -57,7 +57,7 @@ const errorAnswerOf = (error: unknown): ErrorAnswer => {
   if (error instanceof SdkRetiredError) return answer(410, "That is no longer available.", { code: error.code });
   if (error instanceof SdkInputError) {
     const reason = typeof error.details.reason === "string" ? ` (${error.details.reason})` : "";
-    return answer(400, (error.problems.map((problem) => `${problem.field} ${problem.problem}`).join("; ") || "Check what was entered and try again.") + reason, { code: error.code });
+    return answer(400, (error.problems.map((problem) => problem.problem.replace(/\.?$/, ".")).join(" ") || "Check what was entered and try again.") + reason, { code: error.code });
   }
   if (error instanceof SdkLogicFailedError) return answer(422, `An automation stopped this: ${error.message}`, { code: error.code });
   if (error instanceof SdkPlatformRefusedError) return answer(422, `The platform said no: ${error.message}`, { code: error.code });
