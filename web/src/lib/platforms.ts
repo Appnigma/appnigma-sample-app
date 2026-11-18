@@ -1,3 +1,4 @@
+import type { Integration } from "@server-types/integration.types";
 import { PLATFORM_INFO } from "../constants/platforms";
 import type { PlatformInfo } from "../types/ui.types";
 
@@ -20,4 +21,11 @@ const hexToRgbChannels = (hex: string): string => {
   return `${(value >> 16) & 255} ${(value >> 8) & 255} ${value & 255}`;
 };
 
-export { hexToRgbChannels, infoOf, initialsOf, logoUrlOf };
+// A customer's connected CRMs, the ones known to hold CRM records first. A
+// platform whose coverage couldn't be read still counts: its CRM calls answer for themselves.
+const connectedCrmsOf = (integrations: Integration[]): Integration[] =>
+  integrations
+    .filter((integration) => integration.crmData !== "none" && integration.status === "connected")
+    .sort((first, second) => Number(second.crmData === "covered") - Number(first.crmData === "covered"));
+
+export { connectedCrmsOf, hexToRgbChannels, infoOf, initialsOf, logoUrlOf };

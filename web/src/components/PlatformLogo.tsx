@@ -7,11 +7,12 @@ const SIZES = {
   large: { box: "h-14 w-14", image: "h-9 w-9", text: "text-base" },
 };
 
-// The platform's own logo on a white tile, or its initials in its colour when the logo cannot load.
-const PlatformLogo = ({ platform, label, size = "medium" }: { platform: string; label: string; size?: keyof typeof SIZES }) => {
+// The logo platforms.list gives on a white tile, or the platform's site icon,
+// or its initials in its colour when neither can load.
+const PlatformLogo = ({ platform, label, logoUrl = null, size = "medium" }: { platform: string; label: string; logoUrl?: string | null; size?: keyof typeof SIZES }) => {
   const [failed, setFailed] = useState(false);
   const info = infoOf(platform);
-  const url = logoUrlOf(info.domain);
+  const url = logoUrl ?? logoUrlOf(info.domain);
   const classes = SIZES[size];
   if (!url || failed) {
     return (

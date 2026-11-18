@@ -9,6 +9,7 @@ import { useApp } from "../hooks/app-context";
 import { usePolling } from "../hooks/use-polling";
 import { openPipelineOf, recentRecordsOf } from "../lib/customers";
 import { compactMoney, greetingOf, timeAgo } from "../lib/format";
+import { connectedCrmsOf } from "../lib/platforms";
 import { isDone } from "../lib/progress";
 import type { ChecklistItem, RecentRecord } from "../types/ui.types";
 
@@ -28,7 +29,7 @@ const HomePage = () => {
   if (!data) return <PageSkeleton />;
 
   const { overview, integrations } = data;
-  const crm = integrations.find((integration) => integration.hasCrmData && integration.status === "connected");
+  const crm = connectedCrmsOf(integrations)[0];
   const gongConnected = integrations.some((integration) => integration.platform === CALL_PLATFORM && integration.status === "connected");
   const connected = integrations.filter((integration) => integration.status === "connected").length;
   const recent = recentRecordsOf(overview);

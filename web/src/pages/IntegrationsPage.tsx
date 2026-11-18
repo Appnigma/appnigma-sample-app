@@ -19,7 +19,7 @@ const IntegrationCard = ({ integration }: { integration: Integration }) => {
   return (
     <Link to={`/integrations/${integration.platform}`} className="panel group flex flex-col p-5 transition hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md">
       <div className="flex items-start justify-between">
-        <PlatformLogo platform={integration.platform} label={integration.label} />
+        <PlatformLogo platform={integration.platform} label={integration.label} logoUrl={integration.logoUrl} />
         {info.category === POPULAR_CATEGORY && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700">Popular</span>}
       </div>
       <p className="mt-4 font-semibold text-slate-900">{integration.label}</p>
@@ -34,8 +34,9 @@ const IntegrationCard = ({ integration }: { integration: Integration }) => {
   );
 };
 
-// Every platform switched on for your company. One Appnigma switches on for
-// you shows up here by itself, with no change to this page.
+// Every platform switched on for your company, with the logo platforms.list
+// gives. One switched on for you later shows up here by itself, with no
+// change to this page.
 const IntegrationsPage = () => {
   const { data: integrations, error } = usePolling(loadIntegrations, REFRESH_MS);
 

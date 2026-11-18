@@ -12,6 +12,6 @@ export default defineConfig({
   },
   server: {
     port: 4701,
-    proxy: { "/api": "http://localhost:4700" },
+    proxy: { "/api": "http://localhost:4700", "/webhooks": "http://localhost:4700" },
   },
 });
