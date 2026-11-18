@@ -38,20 +38,21 @@ const RUN_OUTCOMES: Record<LogicRunOutcome, string> = {
   failed: "Failed",
 };
 
+// Each choice has a short word for its toggle and the words it adds to "Runs before a company is saved".
 const OBJECT_CHOICES = [
-  { value: "contact", label: "a contact" },
-  { value: "company", label: "a company" },
-  { value: "deal", label: "a deal" },
+  { value: "company", chip: "Company", label: "a company" },
+  { value: "contact", chip: "Contact", label: "a contact" },
+  { value: "deal", chip: "Deal", label: "a deal" },
 ] as const;
 
 const OPERATION_CHOICES = [
-  { value: "write", label: "is saved" },
-  { value: "read", label: "is read" },
+  { value: "write", chip: "Saved", label: "is saved" },
+  { value: "read", chip: "Read", label: "is read" },
 ] as const;
 
 const TIMING_CHOICES = [
-  { value: "before", label: "Before" },
-  { value: "after", label: "After" },
+  { value: "before", chip: "Before", label: "before" },
+  { value: "after", chip: "After", label: "after" },
 ] as const;
 
 const LOGIC_POLL_MS = 3000;

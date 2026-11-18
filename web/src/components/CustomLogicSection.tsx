@@ -8,6 +8,7 @@ import { switchWordsOf, titleOf, whatItDoes } from "../lib/custom-logic";
 import { timeAgo } from "../lib/format";
 import type { PageMessage } from "../types/ui.types";
 import { Notice } from "./Notice";
+import { Segmented } from "./Segmented";
 import { ViewCode } from "./ViewCode";
 
 const PILL_TONES = {
@@ -270,6 +271,12 @@ const RuleDetail = ({ platform, item, canChange, onChanged }: { platform: string
   );
 };
 
+// "before a company is saved", from the picked choices.
+const sentenceOf = (form: NewCustomLogic): string =>
+  [TIMING_CHOICES, OBJECT_CHOICES, OPERATION_CHOICES]
+    .map((choices, index) => choices.find((choice) => choice.value === [form.timing, form.object, form.operation][index])?.label ?? "")
+    .join(" ");
+
 // Asking for a new rule in plain words, with when it runs.
 const NewRule = ({ integration, onStarted, onCancel }: { integration: IntegrationDetail; onStarted: (name: string) => Promise<void>; onCancel?: () => void }) => {
   const [form, setForm] = useState<NewCustomLogic>({ request: "", timing: "before", object: "company", operation: "write" });
@@ -292,52 +299,34 @@ const NewRule = ({ integration, onStarted, onCancel }: { integration: Integratio
   };
 
   return (
-    <form onSubmit={(event) => void submit(event)} className="space-y-4 border-b border-slate-100 bg-slate-50/60 px-5 py-5">
-      <label className="block">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">What should happen?</span>
+    <form onSubmit={(event) => void submit(event)} className="border-b border-slate-100 px-5 py-5">
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm transition focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/15">
         <textarea
-          className="input mt-1 min-h-20"
+          aria-label="What should happen?"
+          className="block min-h-24 w-full resize-none rounded-t-xl border-0 bg-transparent px-4 pb-2 pt-4 text-sm outline-none placeholder:text-slate-400"
           required
-          placeholder={`When a company is saved, put our Account tier into ${integration.label}'s customer tier.`}
+          placeholder={`What should happen? For example: when a company is saved, put our Account tier into ${integration.label}'s customer tier.`}
           value={form.request}
           onChange={(event) => setForm({ ...form, request: event.target.value })}
         />
-      </label>
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">When it runs</span>
-        <select className="input w-auto" value={form.timing} onChange={(event) => setForm({ ...form, timing: TIMING_CHOICES.find((choice) => choice.value === event.target.value)?.value ?? form.timing })}>
-          {TIMING_CHOICES.map((choice) => (
-            <option key={choice.value} value={choice.value}>
-              {choice.label.toLowerCase()}
-            </option>
-          ))}
-        </select>
-        <select className="input w-auto" value={form.object} onChange={(event) => setForm({ ...form, object: OBJECT_CHOICES.find((choice) => choice.value === event.target.value)?.value ?? form.object })}>
-          {OBJECT_CHOICES.map((choice) => (
-            <option key={choice.value} value={choice.value}>
-              {choice.label}
-            </option>
-          ))}
-        </select>
-        <select className="input w-auto" value={form.operation} onChange={(event) => setForm({ ...form, operation: OPERATION_CHOICES.find((choice) => choice.value === event.target.value)?.value ?? form.operation })}>
-          {OPERATION_CHOICES.map((choice) => (
-            <option key={choice.value} value={choice.value}>
-              {choice.label}
-            </option>
-          ))}
-        </select>
-        <span className="ml-auto flex items-center gap-2">
-          {onCancel && (
-            <button type="button" onClick={onCancel} className="button-secondary">
-              Cancel
+        <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 px-3 py-2.5">
+          <Segmented label="When it runs" options={TIMING_CHOICES} value={form.timing} onChange={(timing) => setForm({ ...form, timing })} />
+          <Segmented label="Which record" options={OBJECT_CHOICES} value={form.object} onChange={(object) => setForm({ ...form, object })} />
+          <Segmented label="On" options={OPERATION_CHOICES} value={form.operation} onChange={(operation) => setForm({ ...form, operation })} />
+          <span className="ml-auto flex items-center gap-2">
+            {onCancel && (
+              <button type="button" onClick={onCancel} className="rounded-lg px-3 py-1.5 text-sm font-semibold text-slate-500 hover:text-slate-800">
+                Cancel
+              </button>
+            )}
+            <button type="submit" disabled={saving || !form.request.trim()} className="button-primary">
+              <Sparkles className="h-4 w-4" /> {saving ? "Starting" : "Create"}
             </button>
-          )}
-          <button type="submit" disabled={saving || !form.request.trim()} className="button-primary">
-            <Sparkles className="h-4 w-4" /> {saving ? "Starting" : "Create"}
-          </button>
-        </span>
+          </span>
+        </div>
       </div>
-      {error && <p className="text-rose-600">{error}</p>}
+      <p className="mt-2 text-xs text-slate-500">Runs {sentenceOf(form)}.</p>
+      {error && <p className="mt-2 text-rose-600">{error}</p>}
     </form>
   );
 };
