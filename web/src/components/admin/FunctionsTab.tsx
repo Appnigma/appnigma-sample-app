@@ -1,5 +1,5 @@
 import type { FunctionEntry, JsonObject, JsonValue } from "@appnigma/sdk";
-import type { FunctionResult } from "@server-types/developer.types";
+import type { FunctionResult } from "@server-types";
 import { useEffect, useState, type FormEvent } from "react";
 import { api, messageOf } from "../../api/client";
 import { useApp } from "../../hooks/app-context";

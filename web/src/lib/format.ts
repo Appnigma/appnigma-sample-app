@@ -26,4 +26,14 @@ const greetingOf = (date: Date): string => {
   return "Good evening";
 };
 
-export { compactMoney, greetingOf, isRecent, money, timeAgo };
+// A name as words: "objectType", "pinned_globally" and "fetch-pipelines" read
+// as "Object type", "Pinned globally" and "Fetch pipelines".
+const wordsOf = (name: string): string => {
+  const words = name
+    .replace(/([a-z0-9])([A-Z])/g, (_match, before: string, capital: string) => `${before} ${capital.toLowerCase()}`)
+    .replace(/[-_]+/g, " ")
+    .trim();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+};
+
+export { compactMoney, greetingOf, isRecent, money, timeAgo, wordsOf };

@@ -1,6 +1,6 @@
 # 2. Read and write CRM data, in one shape
 
-Code: [`server/src/services/customers.service.ts`](../server/src/services/customers.service.ts)
+Code: [`server/src/features/customers.ts`](../server/src/features/customers.ts)
 
 `crm.contacts`, `crm.companies` and `crm.deals` read and write a customer's CRM
 in one shape, whichever CRM they use. The Customers page never asks whether it

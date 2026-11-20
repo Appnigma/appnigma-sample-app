@@ -12,7 +12,7 @@
     "noEmit": true,
     "types": ["vite/client"],
     "baseUrl": ".",
-    "paths": { "@server-types/*": ["../server/src/types/*"] }
+    "paths": { "@server-types": ["../server/src/types.ts"] }
   },
   "include": ["src", "vite.config.ts"]
 }

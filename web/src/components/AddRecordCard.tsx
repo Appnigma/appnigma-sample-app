@@ -1,4 +1,4 @@
-import type { CustomerOverview } from "@server-types/customer.types";
+import type { CustomerOverview } from "@server-types";
 import { Plus, X } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { api, messageOf } from "../api/client";

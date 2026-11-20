@@ -1,4 +1,5 @@
-import type { AppInfo } from "@server-types/app.types";
+import type { JsonObject } from "@appnigma/sdk";
+import type { AppInfo } from "@server-types";
 
 type AppContextValue = {
   app: AppInfo;
@@ -69,13 +70,53 @@ type PageMessage = {
 
 type AdminTab = "workspaces" | "notifications" | "events" | "functions" | "guide";
 
+// The tabs on a connected integration's page, and what its platform needs for each to show.
+type IntegrationTab = "overview" | "actions" | "logic" | "mapping";
+
+type IntegrationTabEntry = {
+  key: IntegrationTab;
+  label: string;
+  needs: "nothing" | "actions" | "crm-data";
+};
+
+// One choice of a Segmented or a Picker: the value it sends and the word shown for it.
+type Choice = {
+  value: string;
+  chip: string;
+};
+
+// An action's answer as its page shows it: each list of records at its top
+// as a table, and the rest of it as JSON.
+type OutputTable = {
+  key: string;
+  columns: string[];
+  rows: JsonObject[];
+};
+
+type ActionOutputView = {
+  tables: OutputTable[];
+  rest: JsonObject | null;
+};
+
+// One row of the field mapping preview: a field in this app and the one it fills on the platform.
+type MappingPreviewGroup = {
+  object: string;
+  pairs: { yours: string; theirs: string }[];
+};
+
 export type {
+  ActionOutputView,
   AddKind,
   AdminTab,
   ApiErrorBody,
   AppContextValue,
   ChecklistItem,
+  Choice,
+  IntegrationTab,
+  IntegrationTabEntry,
+  MappingPreviewGroup,
   OpenRecord,
+  OutputTable,
   PageMessage,
   PlainStatus,
   PlatformInfo,

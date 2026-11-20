@@ -1,6 +1,6 @@
 # 4. Handle every failure
 
-Code: [`server/src/api/controllers/respond.ts`](../server/src/api/controllers/respond.ts)
+Code: [`server/src/errors.ts`](../server/src/errors.ts)
 
 Every SDK failure is an error class you can catch by name, and all of them extend
 `SdkError`. This app turns each one into a message its user can act on, in one place.

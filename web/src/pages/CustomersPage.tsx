@@ -1,4 +1,4 @@
-import type { CustomerOverview, RecordKind } from "@server-types/customer.types";
+import type { CustomerOverview, RecordKind } from "@server-types";
 import { Building2, Plus, Users } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Link } from "react-router";

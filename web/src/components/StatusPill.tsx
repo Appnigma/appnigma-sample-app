@@ -1,4 +1,4 @@
-import type { IntegrationStatus } from "@server-types/integration.types";
+import type { IntegrationStatus } from "@server-types";
 
 const STATUS_STYLES: Record<IntegrationStatus, { label: string; className: string; dot: string }> = {
   connected: { label: "Connected", className: "bg-emerald-50 text-emerald-700 ring-emerald-600/20", dot: "bg-emerald-500" },

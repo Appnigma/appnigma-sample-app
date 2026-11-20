@@ -5,7 +5,7 @@ const EVENT_LABELS: Record<ClientEventType, string> = {
   "connection.restored": "A connection came back",
   "go_live.finished": "A change went live",
   "go_live.failed": "A change did not go live",
-  "logic.failed": "An automation failed",
+  "logic.failed": "A custom logic rule failed",
   "records.changed": "Records changed in an account",
 };
 
