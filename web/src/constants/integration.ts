@@ -1,10 +1,11 @@
-import type { IntegrationTab, MappingPreviewGroup } from "../types/ui.types";
+import type { IntegrationTabEntry, MappingPreviewGroup } from "../types/ui.types";
 
-// The tabs on a connected integration's page; custom logic and mapping only where the platform holds CRM data.
-const INTEGRATION_TABS: { key: IntegrationTab; label: string; crmOnly: boolean }[] = [
-  { key: "overview", label: "Overview", crmOnly: false },
-  { key: "logic", label: "Custom logic", crmOnly: true },
-  { key: "mapping", label: "Field mapping", crmOnly: true },
+// The tabs on a connected integration's page; actions only where the platform has some, custom logic and mapping only where it holds CRM data.
+const INTEGRATION_TABS: IntegrationTabEntry[] = [
+  { key: "overview", label: "Overview", needs: "nothing" },
+  { key: "actions", label: "Actions", needs: "actions" },
+  { key: "logic", label: "Custom logic", needs: "crm-data" },
+  { key: "mapping", label: "Field mapping", needs: "crm-data" },
 ];
 
 // What field mapping will look like: this app's fields on the left, the platform's on the right. A preview only.

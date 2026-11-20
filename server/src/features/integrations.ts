@@ -8,7 +8,7 @@ import { route } from "../errors.js";
 import { platformSchema } from "../inputs.js";
 import { recentChanges } from "../jobs/record-sync.js";
 import { requireSignedIn, signedInWorkspace } from "../session.js";
-import type { AccountDetail, CrmData, Integration, IntegrationAction, IntegrationDetail, IntegrationStatus } from "../types.js";
+import type { AccountDetail, CrmData, Integration, IntegrationDetail, IntegrationStatus } from "../types.js";
 
 // The Integrations page: every platform switched on for your company, whether
 // this customer connected it, connecting and disconnecting, and what each
@@ -162,16 +162,6 @@ integrationsRouter.get(
       }
     }
     response.json({ account });
-  }),
-);
-
-// The ready-made actions a platform has, such as Gong's get-call-transcript.
-integrationsRouter.get(
-  "/:platform/actions",
-  route(async (request, response) => {
-    const { actions } = await appnigma.actions.list({ platform: platformSchema.parse(request.params.platform) });
-    const listed: IntegrationAction[] = actions.map((action) => ({ name: action.name, description: action.description }));
-    response.json({ actions: listed });
   }),
 );
 

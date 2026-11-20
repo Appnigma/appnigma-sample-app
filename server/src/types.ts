@@ -73,11 +73,6 @@ type IntegrationDetail = Integration & {
   sync: SyncHealth | null;
 };
 
-type IntegrationAction = {
-  name: string;
-  description: string;
-};
-
 type AccountDetail = {
   label: string;
   value: string;
@@ -103,6 +98,31 @@ type RecordEdit =
   | { kind: "contacts"; platform: string; firstName: string; lastName: string; email: string; phone?: string }
   | { kind: "companies"; platform: string; name: string; domain?: string }
   | { kind: "deals"; platform: string; name: string; amount: number | null; closeDate: string | null };
+
+// Actions: the ready-made jobs a platform has, each with the box its page
+// draws for every field of its input, read from the input's JSON Schema
+type ActionFieldType = "text" | "number" | "integer" | "boolean" | "choice" | "list" | "json";
+
+type ActionField = {
+  name: string;
+  type: ActionFieldType;
+  required: boolean;
+  description: string | null;
+  // The values a choice can take; empty for every other type.
+  choices: string[];
+};
+
+type IntegrationAction = {
+  name: string;
+  description: string;
+  // Null when the input is not one set of fields, such as one of several
+  // shapes: the page then takes the whole input as JSON.
+  fields: ActionField[] | null;
+};
+
+type ActionResult = {
+  output: JsonObject;
+};
 
 // Calls, from Gong's ready-made actions
 type RecordedCall = {
@@ -258,6 +278,9 @@ export type {
   LogicTest,
   NewCustomLogic,
   AccountDetail,
+  ActionField,
+  ActionFieldType,
+  ActionResult,
   AppInfo,
   CreatedWebhook,
   CrmData,

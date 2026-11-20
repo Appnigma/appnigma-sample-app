@@ -1,9 +1,10 @@
 import type { AccountDetail, IntegrationAction, IntegrationDetail } from "@server-types";
 import type { ConnectField, PlatformCoverage } from "@appnigma/sdk";
-import { ArrowDownUp, ArrowLeft, Blocks, Briefcase, Building2, CheckCircle2, ExternalLink, History, RefreshCw, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { ArrowDownUp, ArrowLeft, Blocks, Briefcase, Building2, CheckCircle2, ExternalLink, History, RefreshCw, ShieldCheck, UserRound } from "lucide-react";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import { api, codeOf, messageOf } from "../api/client";
+import { ActionsSection } from "../components/ActionsSection";
 import { CustomLogicSection } from "../components/CustomLogicSection";
 import { EmptyState } from "../components/EmptyState";
 import { FieldMappingPreview } from "../components/FieldMappingPreview";
@@ -161,51 +162,20 @@ const ConnectedAccount = ({ integration }: { integration: IntegrationDetail }) =
   );
 };
 
-// The ready-made actions it has. Like the account card, it is left out when
-// it cannot be read.
-const ActionsPanel = ({ integration }: { integration: IntegrationDetail }) => {
-  const [actions, setActions] = useState<IntegrationAction[]>([]);
-
-  useEffect(() => {
-    void (async () => {
-      try {
-        setActions((await api.actions(integration.platform)).actions);
-      } catch (failure) {
-        console.warn(messageOf(failure));
-        setActions([]);
-      }
-    })();
-  }, [integration.platform]);
-
-  if (actions.length === 0) return null;
-  return (
-    <section className="panel p-5">
-      <h2 className="section-title flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-slate-400" /> What {integration.label} can do here
-      </h2>
-      <ul className="mt-3 space-y-2">
-        {actions.map((action) => (
-          <li key={action.name}>
-            <p className="font-medium">{action.description || action.name}</p>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-};
-
 // One integration: connect it, through their approval page or from your own
-// form, see how it is doing, and disconnect it.
+// form, see how it is doing, run its actions, and disconnect it.
 const IntegrationPage = () => {
   const { platform = "" } = useParams();
   const { app } = useApp();
   const [searchParams, setSearchParams] = useSearchParams();
   const [integration, setIntegration] = useState<IntegrationDetail | null>(null);
+  const [actions, setActions] = useState<IntegrationAction[]>([]);
   const [unavailable, setUnavailable] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
   const justConnected = searchParams.get("status") === "connected";
   const connectFailed = searchParams.get("status") === "failed";
+  const connected = integration?.status === "connected";
 
   const load = useCallback(async () => {
     try {
@@ -220,6 +190,21 @@ const IntegrationPage = () => {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // The actions its platform has, once it is connected. The Actions tab shows
+  // only when there are some and, like the account card, is left out when
+  // they cannot be read.
+  useEffect(() => {
+    if (!connected) return;
+    void (async () => {
+      try {
+        setActions((await api.actions(platform)).actions);
+      } catch (failure) {
+        console.warn(messageOf(failure));
+        setActions([]);
+      }
+    })();
+  }, [platform, connected]);
 
   const connect = async () => {
     setWorking(true);
@@ -261,10 +246,10 @@ const IntegrationPage = () => {
   if (!integration) return <PageSkeleton />;
 
   const info = infoOf(integration.platform);
-  const connected = integration.status === "connected";
   const typesDetails = integration.connectionType === "fields";
   const sync = syncStatusOf(integration.sync);
-  const tabs = INTEGRATION_TABS.filter((item) => !item.crmOnly || integration.crmData !== "none");
+  const has = { nothing: true, actions: actions.length > 0, "crm-data": integration.crmData !== "none" };
+  const tabs = INTEGRATION_TABS.filter((item) => has[item.needs]);
   const tab: IntegrationTab = tabs.find((item) => item.key === searchParams.get("tab"))?.key ?? "overview";
 
   return (
@@ -357,6 +342,7 @@ const IntegrationPage = () => {
         </div>
       )}
 
+      {connected && tab === "actions" && <ActionsSection integration={integration} actions={actions} />}
       {connected && tab === "logic" && <CustomLogicSection integration={integration} canChange={app.features.portal} />}
       {connected && tab === "mapping" && <FieldMappingPreview label={integration.label} />}
 
@@ -382,7 +368,6 @@ const IntegrationPage = () => {
           </div>
           <div className="space-y-6">
             <ConnectedAccount integration={integration} />
-            <ActionsPanel integration={integration} />
           </div>
         </div>
       ) : (

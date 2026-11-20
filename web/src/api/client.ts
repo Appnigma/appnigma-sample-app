@@ -1,5 +1,5 @@
-import type { ClientEventType, SyncSettings } from "@appnigma/sdk";
-import type { AppInfo } from "@server-types";
+import type { ClientEventType, JsonObject, SyncSettings } from "@appnigma/sdk";
+import type { ActionResult, AppInfo } from "@server-types";
 import type { CustomLogicDetail, CustomLogicGoLive, CustomLogicList, CustomLogicRuns, CustomLogicSwitch, NewCustomLogic } from "@server-types";
 import type { RecordedCall, TranscriptPart } from "@server-types";
 import type { RecentChanges } from "@server-types";
@@ -60,6 +60,8 @@ const api = {
   integrations: () => request<{ integrations: Integration[] }>("GET", "/api/integrations"),
   integration: (platform: string) => request<{ integration: IntegrationDetail }>("GET", `/api/integrations/${platform}`),
   actions: (platform: string) => request<{ actions: IntegrationAction[] }>("GET", `/api/integrations/${platform}/actions`),
+  runAction: (platform: string, action: string, input: JsonObject) =>
+    request<ActionResult>("POST", `/api/integrations/${platform}/actions/${encodeURIComponent(action)}/run`, { input }),
   account: (platform: string) => request<{ account: AccountDetail[] }>("GET", `/api/integrations/${platform}/account`),
   changes: (platform: string) => request<RecentChanges>("GET", `/api/integrations/${platform}/changes`),
   connect: (platform: string) => request<{ url: string }>("POST", `/api/integrations/${platform}/connect`),

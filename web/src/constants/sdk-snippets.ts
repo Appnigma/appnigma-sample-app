@@ -1,6 +1,7 @@
 import type { SdkSnippet } from "../types/ui.types";
 
 const INTEGRATIONS = "server/src/features/integrations.ts";
+const ACTIONS = "server/src/features/actions.ts";
 const CUSTOMERS = "server/src/features/customers.ts";
 const CUSTOM_LOGIC = "server/src/features/custom-logic.ts";
 const NOTIFICATIONS = "server/src/features/webhooks.ts";
@@ -30,10 +31,13 @@ const SDK_SNIPPETS: Record<string, SdkSnippet> = {
   "connections.disconnect": { file: INTEGRATIONS, code: "await appnigma.connections.disconnect({ endCustomerId, platform });" },
   "connections.list": { file: ADMIN, code: "const page = await appnigma.connections.list({ limit: 50, cursor });\n// page.endCustomers, page.next" },
   "endCustomers.delete": { file: ADMIN, code: "const removal = await appnigma.endCustomers.delete({ endCustomerId });" },
-  "actions.list": { file: INTEGRATIONS, code: "const { actions } = await appnigma.actions.list({ platform });" },
+  "actions.list": {
+    file: ACTIONS,
+    code: "const { actions } = await appnigma.actions.list({ platform });\n// each has name, description, and the JSON Schema of its input and output",
+  },
   "actions.run": {
-    file: "server/src/features/calls.ts",
-    code: 'const { output } = await appnigma.actions.run({\n  endCustomerId,\n  platform: "gong",\n  action: "get-call-transcript",\n  input: { callId },\n});',
+    file: ACTIONS,
+    code: "const { output } = await appnigma.actions.run({ endCustomerId, platform, action, input });\n// the input is checked against the action's own schema before it runs",
   },
   request: {
     file: INTEGRATIONS,

@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import express from "express";
 import { env } from "./env.js";
+import { actionsRouter } from "./features/actions.js";
 import { adminRouter } from "./features/admin.js";
 import { appRouter } from "./features/app.js";
 import { callsRouter } from "./features/calls.js";
@@ -27,8 +28,9 @@ app.get("/healthz", (_request, response) => {
 
 app.use("/api", withSession);
 app.use("/api/app", appRouter);
-// The more specific path first, so a rule's routes never reach the integrations router.
+// The more specific paths first, so a rule's or an action's routes never reach the integrations router.
 app.use("/api/integrations/:platform/logic", customLogicRouter);
+app.use("/api/integrations/:platform/actions", actionsRouter);
 app.use("/api/integrations", integrationsRouter);
 app.use("/api/customers", customersRouter);
 app.use("/api/calls", callsRouter);

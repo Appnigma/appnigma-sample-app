@@ -1,9 +1,11 @@
 # 3. Run ready-made actions
 
-Code: [`server/src/features/calls.ts`](../server/src/features/calls.ts)
+Code: [`server/src/features/actions.ts`](../server/src/features/actions.ts) and [`server/src/features/calls.ts`](../server/src/features/calls.ts)
 
 Actions are ready-made jobs on a platform that Appnigma writes and keeps up to
-date, such as reading a Gong call's transcript. This app's Calls page uses two.
+date, such as reading a Gong call's transcript. Each integration's Actions tab
+lists the ones its platform has, draws a form from each one's input schema and
+runs the one picked. This app's Calls page uses two of Gong's.
 
 ```ts
 const { output } = await appnigma.actions.run({
