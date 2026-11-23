@@ -1,4 +1,4 @@
-import type { SdkCallRecord } from "@server-types/sdk-call.types";
+import type { SdkCallRecord } from "@server-types";
 import { Code2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "../api/client";

@@ -1,6 +1,6 @@
 # 1. Show integrations and connect a customer
 
-Code: [`server/src/services/integrations.service.ts`](../server/src/services/integrations.service.ts)
+Code: [`server/src/features/integrations.ts`](../server/src/features/integrations.ts)
 
 ## The Integrations page
 

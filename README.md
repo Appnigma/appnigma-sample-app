@@ -9,8 +9,9 @@ Acme Desk's own code never talks to HubSpot, Attio or Pipedrive. It makes SDK
 calls, and Appnigma builds, runs and maintains the integrations behind them.
 
 Use it as a reference: it makes **every call the SDK has**, each in the place a
-real product would, and every one lives in [`server/src/services`](server/src/services),
-one file per flow. `npm test` fails if a call the installed SDK has is never made.
+real product would, and every one sits next to the route that uses it in
+[`server/src/features`](server/src/features), one file per feature. `npm test` fails if a call the
+installed SDK has is never made.
 
 ## Run it in five minutes
 
@@ -36,37 +37,37 @@ https address.
 
 | Step | What the user sees | The code |
 | --- | --- | --- |
-| 1. Create one client | Nothing: it runs on the server | [`lib/appnigma.ts`](server/src/lib/appnigma.ts) |
-| 2. Show integrations and connect a customer | The Integrations page, Connect, and the connect form for platforms that take a login | [`services/integrations.service.ts`](server/src/services/integrations.service.ts) |
-| 3. Read and write their CRM data | The Customers page, Add a contact, company or deal, and editing a record | [`services/customers.service.ts`](server/src/services/customers.service.ts) |
-| 4. Reach anything else on their platform | Which account they connected, on the integration's page | [`services/platform-account.service.ts`](server/src/services/platform-account.service.ts) |
-| 5. Run ready-made actions | The Calls page (Gong transcripts), shown once Gong is switched on | [`services/calls.service.ts`](server/src/services/calls.service.ts) |
-| 6. Write custom logic | Automations: write a rule in words, check it, try it, put it live, switch it on and off, see its runs; and a link that lets a customer manage their own | [`services/automations.service.ts`](server/src/services/automations.service.ts) |
-| 7. Hear what happened | Admin → Webhooks and alerts, and Event log; a signed webhook receiver | [`services/notifications.service.ts`](server/src/services/notifications.service.ts) |
-| 8. Keep a copy of their records | Recent changes on each integration's page, kept fresh by a background job | [`services/changes.service.ts`](server/src/services/changes.service.ts), [`jobs/record-sync.job.ts`](server/src/jobs/record-sync.job.ts) |
-| 9. Look after workspaces | Admin → Workspaces: every connection, and removing a workspace that left | [`services/workspaces.service.ts`](server/src/services/workspaces.service.ts) |
-| 10. Your own functions | Admin → Functions and Developer guide | [`services/developer.service.ts`](server/src/services/developer.service.ts) |
-| Handle every failure | A clear message instead of a crash | [`api/controllers/respond.ts`](server/src/api/controllers/respond.ts) |
+| 1. Create one client | Nothing: it runs on the server | [`appnigma.ts`](server/src/appnigma.ts) |
+| 2. Show integrations and connect a customer | The Integrations page, Connect, and the connect form for platforms that take a login | [`features/integrations.ts`](server/src/features/integrations.ts) |
+| 3. Read and write their CRM data | The Customers page, Add a contact, company or deal, and editing a record | [`features/customers.ts`](server/src/features/customers.ts) |
+| 4. Reach anything else on their platform | Which account they connected, on the integration's page | [`features/integrations.ts`](server/src/features/integrations.ts) |
+| 5. Run ready-made actions | The Actions tab on each integration's page: every action its platform has, a form for its input, Run, and what came back as a table or JSON. Also the Calls page (Gong transcripts), shown once Gong is switched on | [`features/actions.ts`](server/src/features/actions.ts), [`features/calls.ts`](server/src/features/calls.ts) |
+| 6. Let customers write their own logic | On each integration's page: a customer says what should happen in plain words, and the rule is written, checked and tried on sample data for them, then put live; they can ask for a change, switch it on and off, and see its runs | [`features/custom-logic.ts`](server/src/features/custom-logic.ts) |
+| 7. Hear what happened | Admin → Webhooks and alerts, and Event log; a signed webhook receiver | [`features/webhooks.ts`](server/src/features/webhooks.ts) |
+| 8. Keep a copy of their records | Recent changes on each integration's page, kept fresh by a background job | [`jobs/record-sync.ts`](server/src/jobs/record-sync.ts) |
+| 9. Look after workspaces | Admin → Workspaces: every connection, a self-serve link for one workspace, and removing a workspace that left | [`features/admin.ts`](server/src/features/admin.ts) |
+| 10. Your own functions | Admin → Functions and Developer guide | [`features/admin.ts`](server/src/features/admin.ts) |
+| Handle every failure | A clear message instead of a crash | [`errors.ts`](server/src/errors.ts) |
 
 ### Every SDK call, and where it is used
 
 | Call | Where | File |
 | --- | --- | --- |
-| `features.list` | What is switched on, so pages hide what isn't | `app.service.ts` |
-| `platforms.list`, `platforms.get` | Integrations page, and one integration's page with its logo and connect form | `integrations.service.ts` |
-| `connections.createLink`, `connections.connect` | Connect: by a link to the platform, or from your own form (the SDK encrypts what was typed) | `integrations.service.ts` |
-| `connections.get`, `connections.disconnect` | Connection status and Disconnect | `integrations.service.ts` |
-| `connections.list`, `endCustomers.delete` | Admin → Workspaces, and the background job finding connected accounts | `workspaces.service.ts`, `changes.service.ts` |
-| `crm.contacts.*`, `crm.companies.*`, `crm.deals.*` (`list`, `get`, `create`, `update`) | Customers page and its record panel | `customers.service.ts` |
-| `request` | Which account they connected, from the platform's own API | `platform-account.service.ts` |
-| `actions.list`, `actions.run` | An integration's actions, and the Calls page | `integrations.service.ts`, `calls.service.ts` |
-| `logic.list`, `get`, `create`, `edit`, `update`, `check`, `test`, `goLive`, `goLiveStatus`, `switchOn`, `switchOff`, `runs`, `discard` | Automations and one automation's page | `automations.service.ts` |
-| `portal.createLink` | Automations: let a customer manage their own rules | `automations.service.ts` |
-| `webhooks.create`, `webhooks.list`, `webhooks.delete`, `alerts.get`, `alerts.set` | Admin → Webhooks and alerts | `notifications.service.ts` |
-| `events.list` | Admin → Event log | `notifications.service.ts` |
-| `verifyWebhook` | The webhook receiver, before anything reads the body | `notifications.service.ts` |
-| `sync.get`, `sync.set`, `records.changes` | Admin's sync switch, the background job, and Recent changes | `notifications.service.ts`, `changes.service.ts` |
-| `catalog`, `run`, `guide` | Admin → Functions and Developer guide | `developer.service.ts` |
+| `features.list` | What is switched on, so pages hide what isn't | `features/app.ts` |
+| `platforms.list`, `platforms.get` | Integrations page, and one integration's page with its logo and connect form | `features/integrations.ts` |
+| `connections.createLink`, `connections.connect` | Connect: by a link to the platform, or from your own form (the SDK encrypts what was typed) | `features/integrations.ts` |
+| `connections.get`, `connections.disconnect` | Connection status and Disconnect | `features/integrations.ts` |
+| `connections.list`, `endCustomers.delete` | Admin → Workspaces, and the background job finding connected accounts | `features/admin.ts`, `jobs/record-sync.ts` |
+| `crm.contacts.*`, `crm.companies.*`, `crm.deals.*` (`list`, `get`, `create`, `update`) | Customers page and its record panel | `features/customers.ts` |
+| `request` | Which account they connected, from the platform's own API | `features/integrations.ts` |
+| `actions.list`, `actions.run` | An integration's Actions tab, and the Calls page | `features/actions.ts`, `features/calls.ts` |
+| `logic.list`, `get`, `create`, `edit`, `update`, `check`, `test`, `goLive`, `goLiveStatus`, `switchOn`, `switchOff`, `runs`, `discard` | Custom logic on each integration's page | `features/custom-logic.ts` |
+| `portal.createLink` | Admin → Workspaces: a self-serve link for one workspace | `features/admin.ts` |
+| `webhooks.create`, `webhooks.list`, `webhooks.delete`, `alerts.get`, `alerts.set` | Admin → Webhooks and alerts | `features/webhooks.ts` |
+| `events.list` | Admin → Event log | `features/webhooks.ts` |
+| `verifyWebhook` | The webhook receiver, before anything reads the body | `features/webhooks.ts` |
+| `sync.get`, `sync.set`, `records.changes` | Admin's sync switch, the background job, and Recent changes | `features/webhooks.ts`, `jobs/record-sync.ts` |
+| `catalog`, `run`, `guide` | Admin → Functions and Developer guide | `features/admin.ts` |
 
 Each step has a short page in [`docs/`](docs), with a diagram and the exact calls.
 
@@ -97,9 +98,9 @@ flowchart LR
     UI[Acme Desk web app]
   end
   subgraph Server["Acme Desk server (this repository)"]
-    R[routes] --> C[controllers] --> S[services] --> L["lib/appnigma.ts<br/>(the SDK client)"]
+    F["features/*.ts<br/>(a route and its SDK calls)"] --> L["appnigma.ts<br/>(the SDK client)"]
   end
-  UI -- "/api/*" --> R
+  UI -- "/api/*" --> F
   L -- "SDK calls, with your key" --> A[Appnigma]
   A --> P1[HubSpot]
   A --> P2[Attio]
@@ -107,24 +108,24 @@ flowchart LR
 ```
 
 - The browser only talks to this app's own server. The SDK key never leaves the server.
-- The server is layered: routes wire paths, controllers check input and shape answers, services hold the SDK calls.
+- Each feature file holds its routes: it checks the input, makes the SDK calls and answers, right there. `errors.ts` turns any failure into plain words.
 - Appnigma keeps each customer's connection and talks to their platforms.
 
 ## Project layout
 
 ```
 server/src/
-  lib/appnigma.ts        the one SDK client
-  services/              every SDK call, one file per flow
-  jobs/                  the background job that keeps the record copy fresh
-  api/routes/            paths and middleware
-  api/controllers/       input checks, answers, error handling
-  types/  schemas/  constants/  config/
+  appnigma.ts            the one SDK client
+  features/              one file per feature: its routes and SDK calls together
+  jobs/record-sync.ts    the background job that keeps the record copy fresh
+  errors.ts              every failure, in plain words
+  session.ts             the sign-in stand-in
+  env.ts  inputs.ts  types.ts  under-the-hood.ts  server.ts
 server/test/             the check that every SDK call is used
 web/src/
-  pages/                 Home, Customers, Integrations, one integration, Calls,
-                         Automations, one automation, Admin
-  components/            layout, Under the hood panel, Admin tabs
+  pages/                 Home, Customers, Integrations, one integration (with
+                         its actions and custom logic), Calls, Admin
+  components/            layout, actions, custom logic, Under the hood panel, Admin tabs
 docs/                    one page per flow
 ```
 
@@ -132,12 +133,12 @@ docs/                    one page per flow
 
 1. Set `PRODUCT_NAME` and `BRAND_COLOR` in `.env`.
 2. Set `PUBLIC_URL` to the https address your users reach. The connect flow sends them back there.
-3. Replace the sign-in stand-in (`api/controllers/app.controller.ts` and `constants/accounts.ts`) with your own login. Use your own stable id for each customer as their `endCustomerId`.
+3. Replace the sign-in stand-in (`session.ts` and the session routes in `features/app.ts`) with your own login. Use your own stable id for each customer as their `endCustomerId`.
 4. One account in a platform (one HubSpot portal, say) can be connected by one of your customers at a time. A second customer connecting the same account is refused, so each customer's data stays their own.
 5. To receive events, add a webhook in Admin → Webhooks and alerts with an https address that reaches `/webhooks/appnigma` on this server. Its secret is shown once: put it in `APPNIGMA_WEBHOOK_SECRET` so the receiver can check signatures after a restart.
 6. The record copy, the webhook inbox and the webhook secret live in memory here so the sample needs no database. Keep them in your own database and secret store.
 
-The **Under the hood** panel and `lib/sdk-call-log.ts` are only there to show
+The **Under the hood** panel and `under-the-hood.ts` are only there to show
 the calls; you can delete both.
 
 ## Ask from Claude Code

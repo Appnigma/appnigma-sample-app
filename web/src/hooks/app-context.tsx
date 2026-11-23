@@ -1,4 +1,4 @@
-import type { AppInfo } from "@server-types/app.types";
+import type { AppInfo } from "@server-types";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { api, messageOf } from "../api/client";
 import { hexToRgbChannels } from "../lib/platforms";

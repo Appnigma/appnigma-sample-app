@@ -2,8 +2,6 @@ import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 import { Layout } from "./components/Layout";
 import { AppProvider, useApp } from "./hooks/app-context";
 import { AdminPage } from "./pages/AdminPage";
-import { AutomationPage } from "./pages/AutomationPage";
-import { AutomationsPage } from "./pages/AutomationsPage";
 import { CallsPage } from "./pages/CallsPage";
 import { CustomersPage } from "./pages/CustomersPage";
 import { HomePage } from "./pages/HomePage";
@@ -21,8 +19,6 @@ const router = createBrowserRouter([
       { path: "integrations", element: <IntegrationsPage /> },
       { path: "integrations/:platform", element: <IntegrationPage /> },
       { path: "calls", element: <CallsPage /> },
-      { path: "automations", element: <AutomationsPage /> },
-      { path: "automations/:platform/:name", element: <AutomationPage /> },
       { path: "admin", element: <AdminPage /> },
       { path: "*", element: <Navigate to="/" replace /> },
     ],

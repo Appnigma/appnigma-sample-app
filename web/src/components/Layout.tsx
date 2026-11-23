@@ -11,7 +11,6 @@ import {
   Search,
   Settings,
   Users,
-  Workflow,
 } from "lucide-react";
 import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router";
@@ -43,13 +42,6 @@ const NAV = [
     needsCalls: false,
   },
   { to: "/calls", label: "Calls", end: false, icon: Phone, needsCalls: true },
-  {
-    to: "/automations",
-    label: "Automations",
-    end: false,
-    icon: Workflow,
-    needsCalls: false,
-  },
 ];
 
 // Your team's own page. In your product it sits behind your staff login.

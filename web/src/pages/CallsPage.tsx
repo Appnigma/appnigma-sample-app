@@ -1,4 +1,4 @@
-import type { RecordedCall, TranscriptPart } from "@server-types/call.types";
+import type { RecordedCall, TranscriptPart } from "@server-types";
 import { Clock, Phone } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";

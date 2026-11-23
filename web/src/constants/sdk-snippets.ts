@@ -1,16 +1,17 @@
 import type { SdkSnippet } from "../types/ui.types";
 
-const INTEGRATIONS = "server/src/services/integrations.service.ts";
-const CUSTOMERS = "server/src/services/customers.service.ts";
-const AUTOMATIONS = "server/src/services/automations.service.ts";
-const NOTIFICATIONS = "server/src/services/notifications.service.ts";
-const WORKSPACES = "server/src/services/workspaces.service.ts";
-const DEVELOPER = "server/src/services/developer.service.ts";
+const INTEGRATIONS = "server/src/features/integrations.ts";
+const ACTIONS = "server/src/features/actions.ts";
+const CUSTOMERS = "server/src/features/customers.ts";
+const CUSTOM_LOGIC = "server/src/features/custom-logic.ts";
+const NOTIFICATIONS = "server/src/features/webhooks.ts";
+const ADMIN = "server/src/features/admin.ts";
+const RECORD_SYNC = "server/src/jobs/record-sync.ts";
 
 // What each SDK call looks like in this repository's server code, for the "Under the hood" panel.
 const SDK_SNIPPETS: Record<string, SdkSnippet> = {
   "features.list": {
-    file: "server/src/services/app.service.ts",
+    file: "server/src/features/app.ts",
     code: 'const { features } = await appnigma.features.list();\nconst syncOn = features.some((feature) => feature.name === "sync" && feature.enabled);',
   },
   "platforms.list": { file: INTEGRATIONS, code: "const { platforms } = await appnigma.platforms.list();\n// each has label, logoUrl, coverage, connectionType and fields" },
@@ -28,46 +29,49 @@ const SDK_SNIPPETS: Record<string, SdkSnippet> = {
     code: "const connection = await appnigma.connections.connect({ endCustomerId, platform, fields });\n// fields are encrypted before they leave your server",
   },
   "connections.disconnect": { file: INTEGRATIONS, code: "await appnigma.connections.disconnect({ endCustomerId, platform });" },
-  "connections.list": { file: WORKSPACES, code: "const page = await appnigma.connections.list({ limit: 50, cursor });\n// page.endCustomers, page.next" },
-  "endCustomers.delete": { file: WORKSPACES, code: "const removal = await appnigma.endCustomers.delete({ endCustomerId });" },
-  "actions.list": { file: INTEGRATIONS, code: "const { actions } = await appnigma.actions.list({ platform });" },
+  "connections.list": { file: ADMIN, code: "const page = await appnigma.connections.list({ limit: 50, cursor });\n// page.endCustomers, page.next" },
+  "endCustomers.delete": { file: ADMIN, code: "const removal = await appnigma.endCustomers.delete({ endCustomerId });" },
+  "actions.list": {
+    file: ACTIONS,
+    code: "const { actions } = await appnigma.actions.list({ platform });\n// each has name, description, and the JSON Schema of its input and output",
+  },
   "actions.run": {
-    file: "server/src/services/calls.service.ts",
-    code: 'const { output } = await appnigma.actions.run({\n  endCustomerId,\n  platform: "gong",\n  action: "get-call-transcript",\n  input: { callId },\n});',
+    file: ACTIONS,
+    code: "const { output } = await appnigma.actions.run({ endCustomerId, platform, action, input });\n// the input is checked against the action's own schema before it runs",
   },
   request: {
-    file: "server/src/services/platform-account.service.ts",
+    file: INTEGRATIONS,
     code: 'const answer = await appnigma.request({ endCustomerId, platform, method: "GET", path });\nif (answer.status === 200) read(answer.body);',
   },
-  "sync.get": { file: "server/src/services/changes.service.ts", code: "const sync = await appnigma.sync.get();\n// sync.on, sync.platforms" },
+  "sync.get": { file: RECORD_SYNC, code: "const sync = await appnigma.sync.get();\n// sync.on, sync.platforms" },
   "sync.set": { file: NOTIFICATIONS, code: "const sync = await appnigma.sync.set({ on: true });" },
   "records.changes": {
-    file: "server/src/services/changes.service.ts",
+    file: RECORD_SYNC,
     code: 'const page = await appnigma.records.changes({ endCustomerId, platform, object: "deal", since });\nfor (const change of page.changes) apply(change.record);',
   },
-  "logic.list": { file: AUTOMATIONS, code: "const { logic, folderProblems } = await appnigma.logic.list({ endCustomerId });" },
-  "logic.get": { file: AUTOMATIONS, code: "const opened = await appnigma.logic.get({ endCustomerId, platform, name });\n// opened.file, opened.draft, opened.entry" },
-  "logic.create": { file: AUTOMATIONS, code: 'await appnigma.logic.create({ endCustomerId, platform, name, trigger: { object: "deal", operation: "write", timing: "before" } });' },
-  "logic.edit": { file: AUTOMATIONS, code: "const edited = await appnigma.logic.edit({ endCustomerId, platform, name, prompt, requestedBy });\n// edited.saved, edited.summary, edited.problems" },
-  "logic.update": { file: AUTOMATIONS, code: "await appnigma.logic.update({ endCustomerId, platform, name, source, revision });" },
-  "logic.check": { file: AUTOMATIONS, code: "const { problems } = await appnigma.logic.check({ endCustomerId, platform, name });" },
-  "logic.test": { file: AUTOMATIONS, code: "const tried = await appnigma.logic.test({ endCustomerId, platform, name, input });\n// tried.output or tried.error, tried.calls" },
-  "logic.goLive": { file: AUTOMATIONS, code: "await appnigma.logic.goLive({ endCustomerId, platform, name, revision });" },
-  "logic.goLiveStatus": { file: AUTOMATIONS, code: "const status = await appnigma.logic.goLiveStatus({ endCustomerId, platform, name });\n// checking, live, failed or none" },
-  "logic.discard": { file: AUTOMATIONS, code: "await appnigma.logic.discard({ endCustomerId, platform, name, revision });" },
-  "logic.switchOn": { file: AUTOMATIONS, code: "await appnigma.logic.switchOn({ logicId, endCustomerId });" },
-  "logic.switchOff": { file: AUTOMATIONS, code: "await appnigma.logic.switchOff({ logicId, endCustomerId });" },
-  "logic.runs": { file: AUTOMATIONS, code: "const { runs } = await appnigma.logic.runs({ logicId, endCustomerId, limit: 20 });" },
-  "portal.createLink": { file: AUTOMATIONS, code: "const link = await appnigma.portal.createLink({ endCustomerId });\n// open link.url" },
+  "logic.list": { file: CUSTOM_LOGIC, code: "const { logic, folderProblems } = await appnigma.logic.list({ endCustomerId });" },
+  "logic.get": { file: CUSTOM_LOGIC, code: "const opened = await appnigma.logic.get({ endCustomerId, platform, name });\n// opened.file, opened.draft, opened.entry" },
+  "logic.create": { file: CUSTOM_LOGIC, code: 'await appnigma.logic.create({ endCustomerId, platform, name, trigger: { object: "deal", operation: "write", timing: "before" } });' },
+  "logic.edit": { file: CUSTOM_LOGIC, code: "const edited = await appnigma.logic.edit({ endCustomerId, platform, name, prompt, requestedBy });\n// edited.saved, edited.summary, edited.problems" },
+  "logic.update": { file: CUSTOM_LOGIC, code: "await appnigma.logic.update({ endCustomerId, platform, name, source, revision });" },
+  "logic.check": { file: CUSTOM_LOGIC, code: "const { problems } = await appnigma.logic.check({ endCustomerId, platform, name });" },
+  "logic.test": { file: CUSTOM_LOGIC, code: "const tried = await appnigma.logic.test({ endCustomerId, platform, name, input });\n// tried.output or tried.error, tried.calls" },
+  "logic.goLive": { file: CUSTOM_LOGIC, code: "await appnigma.logic.goLive({ endCustomerId, platform, name, revision });" },
+  "logic.goLiveStatus": { file: CUSTOM_LOGIC, code: "const status = await appnigma.logic.goLiveStatus({ endCustomerId, platform, name });\n// checking, live, failed or none" },
+  "logic.discard": { file: CUSTOM_LOGIC, code: "await appnigma.logic.discard({ endCustomerId, platform, name, revision });" },
+  "logic.switchOn": { file: CUSTOM_LOGIC, code: "await appnigma.logic.switchOn({ logicId, endCustomerId });" },
+  "logic.switchOff": { file: CUSTOM_LOGIC, code: "await appnigma.logic.switchOff({ logicId, endCustomerId });" },
+  "logic.runs": { file: CUSTOM_LOGIC, code: "const { runs } = await appnigma.logic.runs({ logicId, endCustomerId, limit: 20 });" },
+  "portal.createLink": { file: ADMIN, code: "const link = await appnigma.portal.createLink({ endCustomerId });\n// a self-serve page for that workspace" },
   "webhooks.create": { file: NOTIFICATIONS, code: "const { webhook, secret } = await appnigma.webhooks.create({ url });\n// the secret is shown once: keep it" },
   "webhooks.list": { file: NOTIFICATIONS, code: "const { webhooks } = await appnigma.webhooks.list();" },
   "webhooks.delete": { file: NOTIFICATIONS, code: "await appnigma.webhooks.delete({ webhookId });" },
   "alerts.get": { file: NOTIFICATIONS, code: "const { events } = await appnigma.alerts.get();" },
   "alerts.set": { file: NOTIFICATIONS, code: "await appnigma.alerts.set({ events });" },
   "events.list": { file: NOTIFICATIONS, code: "const page = await appnigma.events.list({ type, cursor, limit: 20 });" },
-  catalog: { file: DEVELOPER, code: "const { functions } = await appnigma.catalog();" },
-  run: { file: DEVELOPER, code: "const { output, ranAs } = await appnigma.run({ endCustomerId, platform, functionName, input });" },
-  guide: { file: DEVELOPER, code: "const { guide } = await appnigma.guide();" },
+  catalog: { file: ADMIN, code: "const { functions } = await appnigma.catalog();" },
+  run: { file: ADMIN, code: "const { output, ranAs } = await appnigma.run({ endCustomerId, platform, functionName, input });" },
+  guide: { file: ADMIN, code: "const { guide } = await appnigma.guide();" },
 };
 
 const CRM_OBJECTS = ["contacts", "companies", "deals"] as const;

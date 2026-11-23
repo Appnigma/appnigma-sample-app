@@ -1,5 +1,5 @@
-import type { CustomerRecord } from "@server-types/customer.types";
-import type { RecordEdit } from "@server-types/customer.types";
+import type { CustomerRecord } from "@server-types";
+import type { RecordEdit } from "@server-types";
 import { useEffect, useState, type FormEvent } from "react";
 import { api, messageOf } from "../api/client";
 import { money, timeAgo } from "../lib/format";

@@ -1,36 +1,41 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import express from "express";
-import { adminRouter } from "./api/routes/admin.routes.js";
-import { appRouter, underTheHoodRouter } from "./api/routes/app.routes.js";
-import { automationsRouter } from "./api/routes/automations.routes.js";
-import { callsRouter, customersRouter } from "./api/routes/data.routes.js";
-import { integrationsRouter } from "./api/routes/integrations.routes.js";
-import { webhookRouter } from "./api/routes/webhook.routes.js";
-import { withRequestContext } from "./api/middleware/request-context.js";
-import { env } from "./config/env.js";
-import { WEBHOOK_RECEIVER_PATH } from "./constants/webhooks.js";
-import { startRecordSync } from "./jobs/record-sync.job.js";
+import { env } from "./env.js";
+import { actionsRouter } from "./features/actions.js";
+import { adminRouter } from "./features/admin.js";
+import { appRouter } from "./features/app.js";
+import { callsRouter } from "./features/calls.js";
+import { customersRouter } from "./features/customers.js";
+import { customLogicRouter } from "./features/custom-logic.js";
+import { integrationsRouter } from "./features/integrations.js";
+import { notificationsRouter, WEBHOOK_RECEIVER_PATH, webhookReceiverRouter } from "./features/webhooks.js";
+import { startRecordSync } from "./jobs/record-sync.js";
+import { withSession } from "./session.js";
+import { underTheHoodRouter } from "./under-the-hood.js";
 
 const app = express();
 
 app.disable("x-powered-by");
 app.set("trust proxy", 1);
 // Mounted before the JSON parser, which would otherwise read the body first.
-app.use(WEBHOOK_RECEIVER_PATH, webhookRouter);
+app.use(WEBHOOK_RECEIVER_PATH, webhookReceiverRouter);
 app.use(express.json({ limit: "100kb" }));
 
 app.get("/healthz", (_request, response) => {
   response.json({ status: "ok" });
 });
 
-app.use("/api", withRequestContext);
+app.use("/api", withSession);
 app.use("/api/app", appRouter);
+// The more specific paths first, so a rule's or an action's routes never reach the integrations router.
+app.use("/api/integrations/:platform/logic", customLogicRouter);
+app.use("/api/integrations/:platform/actions", actionsRouter);
 app.use("/api/integrations", integrationsRouter);
 app.use("/api/customers", customersRouter);
 app.use("/api/calls", callsRouter);
-app.use("/api/automations", automationsRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/admin", notificationsRouter);
 app.use("/api/under-the-hood", underTheHoodRouter);
 app.use("/api", (_request, response) => {
   response.status(404).json({ error: { message: "There is no such API route" } });
@@ -41,7 +46,7 @@ app.use("/api", (_request, response) => {
 const indexFile = path.join(env.webDistDirectory, "index.html");
 if (existsSync(indexFile)) {
   app.use(express.static(env.webDistDirectory, { index: false, maxAge: "1h" }));
-  app.use(withRequestContext, (request, response, next) => {
+  app.use(withSession, (request, response, next) => {
     if (request.method !== "GET") return next();
     response.sendFile(indexFile);
   });
